@@ -2,6 +2,12 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    // KSP For Room
+    id("com.google.devtools.ksp")
+
+    // Dagger Hilt
+//    id("kotlin-kapt")
+//    id("com.google.dagger.hilt.android")
 }
 
 android {
@@ -56,4 +62,35 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    // Navigation for Jetpack Compose
+    implementation(libs.androidx.navigation.compose)
+    // rememberScaffoldState()
+    implementation(libs.accompanist.pager.indicators)
+    // ConstraintLayout()
+    implementation(libs.androidx.constraintlayout.compose)
+    // AsyncImage
+    implementation(libs.coil.compose)
+
+    // Room
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler.v250)
+
+    // Dagger Hilt
+//    implementation (libs.androidx.hilt.lifecycle.viewmodel)
+//    implementation (libs.hilt.android)
+//    kapt(libs.hilt.android.compiler)
+
+//    implementation(libs.google.accompanist.pager)
+//    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
+//    implementation("androidx.lifecycle:lifecycle-livedata:2.6.2")
+//    implementation("com.github.bumptech.glide:glide:4.16.0")
+//    implementation("com.google.code.gson:gson:2.10.1")
+//    implementation("androidx.compose.foundation:foundation:1.5.4")
 }
+
+// Dagger Hilt
+//kapt {
+//    correctErrorTypes = true
+//}

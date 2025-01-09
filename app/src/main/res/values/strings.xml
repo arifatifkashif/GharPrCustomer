@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">GharPrCustomer</string>
+    <string name="app_name_short">GharPr</string>
 </resources>
