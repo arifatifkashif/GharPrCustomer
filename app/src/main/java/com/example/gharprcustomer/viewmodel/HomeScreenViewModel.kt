@@ -1,6 +1,5 @@
 package com.example.gharprcustomer.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.gharprcustomer.data.model.BannerModel
@@ -8,13 +7,13 @@ import com.example.gharprcustomer.data.model.CategoryModel
 import com.example.gharprcustomer.data.model.CustomerModel
 import com.example.gharprcustomer.data.model.DealModel
 import com.example.gharprcustomer.data.model.MenuItemModel
-import com.example.gharprcustomer.data.model.RestaurantModel
+import com.example.gharprcustomer.data.model.MarketItemModel
 import com.example.gharprcustomer.data.repository.BannerRepository
 import com.example.gharprcustomer.data.repository.CategoryRepository
 import com.example.gharprcustomer.data.repository.CustomerRepository
 import com.example.gharprcustomer.data.repository.DealRepository
 import com.example.gharprcustomer.data.repository.MenuItemRepository
-import com.example.gharprcustomer.data.repository.RestaurantRepository
+import com.example.gharprcustomer.data.repository.MarketRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -32,7 +31,7 @@ class HomeScreenViewModel(
     private val bannerRepository: BannerRepository = BannerRepository()
     private val categoryRepository: CategoryRepository = CategoryRepository()
     private val dealRepository: DealRepository = DealRepository()
-    private val restaurantRepository: RestaurantRepository = RestaurantRepository()
+    private val marketRepository: MarketRepository = MarketRepository()
     private val menuItemRepository: MenuItemRepository = MenuItemRepository()
 
     private val _uiState = MutableStateFlow(HomeScreenState())
@@ -43,7 +42,7 @@ class HomeScreenViewModel(
         loadBanners()
         loadCategories()
         loadMenuItems()
-        loadRestaurants()
+        loadMarketItems()
         loadDeals()
     }
 
@@ -109,17 +108,17 @@ class HomeScreenViewModel(
         }
     }
 
-    private fun loadRestaurants() {
+    private fun loadMarketItems() {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoadingRestaurants = true)
+            _uiState.value = _uiState.value.copy(isLoadingMarketItems = true)
             try {
-                val restaurants = restaurantRepository.getRestaurants()
+                val marketItems = marketRepository.getMarketItems()
                 _uiState.value =
-                    _uiState.value.copy(restaurants = restaurants, isLoadingRestaurants = false)
+                    _uiState.value.copy(marketItems = marketItems, isLoadingMarketItems = false)
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
-                    isLoadingRestaurants = false,
-                    errorMessage = e.localizedMessage ?: "Failed to load restaurants"
+                    isLoadingMarketItems = false,
+                    errorMessage = e.localizedMessage ?: "Failed to load Market Items"
                 )
             }
         }
@@ -146,13 +145,13 @@ data class HomeScreenState(
     val banners: List<BannerModel> = emptyList(),
     val categories: List<CategoryModel> = emptyList(),
     val menuItems: List<MenuItemModel> = emptyList(),
-    val restaurants: List<RestaurantModel> = emptyList(),
+    val marketItems: List<MarketItemModel> = emptyList(),
     val deals: List<DealModel> = emptyList(),
     val isLoadingCustomer: Boolean = false,
     val isLoadingBanners: Boolean = false,
     val isLoadingCategories: Boolean = false,
     val isLoadingMenuItems: Boolean = false,
-    val isLoadingRestaurants: Boolean = false,
+    val isLoadingMarketItems: Boolean = false,
     val isLoadingDeals: Boolean = false,
     val errorMessage: String? = null
 )

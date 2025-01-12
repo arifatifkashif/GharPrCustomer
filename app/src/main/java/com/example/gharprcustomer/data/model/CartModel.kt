@@ -1,7 +1,11 @@
 package com.example.gharprcustomer.data.model
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+
+@Entity(tableName = "cart_items")
 data class CartModel(
-    val id: String,
+    @PrimaryKey val itemId: String,
     val name: String,
     val imageUrl: String,
     val price: Double,

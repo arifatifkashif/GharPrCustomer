@@ -51,15 +51,20 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.gharprcustomer.data.model.CartModel
 import com.example.gharprcustomer.ui.theme.LightGrayColor
 import com.example.gharprcustomer.ui.theme.LightOrange
 import com.example.gharprcustomer.ui.theme.Orange
+import com.example.gharprcustomer.viewmodel.CartScreenViewModel
 
 @Composable
-fun DealDetailScreen(dealId: Int, navController: NavController) {
+fun DealDetailScreen(dealId: String, navController: NavController) {
     val viewModel = HomeScreenViewModel()
     val uiState = viewModel.uiState.collectAsState().value
     val deal = uiState.deals.find { it.dealId == dealId }
+
+    val cartViewModel: CartScreenViewModel = hiltViewModel()
 
     if (deal == null) {
         // Handle case where the item is not found
@@ -195,7 +200,16 @@ fun DealDetailScreen(dealId: Int, navController: NavController) {
 
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
             Button(
-                onClick = {},
+                onClick = {
+                    val cartItem = CartModel(
+                        itemId = deal.dealId,
+                        name = deal.name,
+                        imageUrl = deal.images[0],
+                        price = deal.price,
+                        quantity = 1
+                    )
+                    cartViewModel.addItemToCart(cartItem)
+                },
                 shape = RoundedCornerShape(10.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Orange),
                 modifier = Modifier
@@ -209,7 +223,9 @@ fun DealDetailScreen(dealId: Int, navController: NavController) {
             }
 
             Button(
-                onClick = {},
+                onClick = {
+                    navController.navigate("cart")
+                },
                 shape = RoundedCornerShape(10.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Grey,

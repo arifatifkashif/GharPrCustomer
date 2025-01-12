@@ -1,8 +1,8 @@
 package com.example.gharprcustomer.data.model
 
 data class MenuItemModel(
-    val itemId: Int,
-    val restaurantId: Int,          // Foreign key for the restaurant
+    val itemId: String,
+    val marketItemId: Int,          // Foreign key for the restaurant
     val name: String,               // Name of the menu item
     val description: String?,       // Optional description (nullable)
     val price: Double,              // Price of the item

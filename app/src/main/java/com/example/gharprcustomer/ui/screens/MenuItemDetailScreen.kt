@@ -52,6 +52,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.gharprcustomer.data.model.CartModel
 import com.example.gharprcustomer.ui.theme.LightGrayColor
@@ -60,12 +61,12 @@ import com.example.gharprcustomer.ui.theme.Orange
 import com.example.gharprcustomer.viewmodel.CartScreenViewModel
 
 @Composable
-fun MenuItemDetailScreen(menuItemId: Int, navController: NavController) {
+fun MenuItemDetailScreen(menuItemId: String, navController: NavController) {
     val homeViewModel = HomeScreenViewModel()
     val homeUiState = homeViewModel.uiState.collectAsState().value
     val menuItem = homeUiState.menuItems.find { it.itemId == menuItemId }
 
-    val cartViewModel: CartScreenViewModel = viewModel()
+    val cartViewModel: CartScreenViewModel = hiltViewModel()
 //    val cartUiState = cartViewModel.uiState.collectAsState().value
 
     if (menuItem == null) {
@@ -204,7 +205,7 @@ fun MenuItemDetailScreen(menuItemId: Int, navController: NavController) {
             Button(
                 onClick = {
                     val cartItem = CartModel(
-                        id = menuItem.itemId.toString(),
+                        itemId = menuItem.itemId,
                         name = menuItem.name,
                         imageUrl = menuItem.images[0],
                         price = menuItem.price,

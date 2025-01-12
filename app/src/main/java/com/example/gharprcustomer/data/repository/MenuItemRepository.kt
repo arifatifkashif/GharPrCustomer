@@ -6,7 +6,7 @@ class MenuItemRepository {
     suspend fun getMenuItems(): List<MenuItemModel> {
         return listOf(
             MenuItemModel(
-                1,
+                "item1",
                 1,               // For restaurant 1
                 "Margherita Pizza",
                 "Classic pizza with mozzarella and basil",
@@ -23,7 +23,7 @@ class MenuItemRepository {
                 )
             ),
             MenuItemModel(
-                2,
+                "item2",
                 1,               // For restaurant 1
                 "Pepperoni Pizza",
                 "Pepperoni and cheese pizza",
@@ -33,7 +33,7 @@ class MenuItemRepository {
                 listOf("pizza_image_url_3", "pizza_image_url_4")
             ),
             MenuItemModel(
-                3,
+                "item3",
                 1,               // For restaurant 2
                 "Cheeseburger",
                 "Juicy beef patty with melted cheese",
@@ -43,7 +43,7 @@ class MenuItemRepository {
                 listOf("burger_image_url_1", "burger_image_url_2")
             ),
             MenuItemModel(
-                4,
+                "item4",
                 1,               // For restaurant 2
                 "Fries",
                 "Crispy golden fries",
@@ -53,7 +53,7 @@ class MenuItemRepository {
                 listOf("fries_image_url_1", "fries_image_url_2")
             ),
             MenuItemModel(
-                4,
+                "item5",
                 1,               // For restaurant 2
                 "Fries",
                 "Crispy golden fries",
@@ -63,7 +63,7 @@ class MenuItemRepository {
                 listOf("fries_image_url_1", "fries_image_url_2")
             ),
             MenuItemModel(
-                4,
+                "item6",
                 1,               // For restaurant 2
                 "Fries",
                 "Crispy golden fries",

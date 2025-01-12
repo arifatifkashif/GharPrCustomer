@@ -1,12 +1,12 @@
 package com.example.gharprcustomer.data.repository
 
-import com.example.gharprcustomer.data.model.RestaurantModel
+import com.example.gharprcustomer.data.model.MarketItemModel
 
-class RestaurantRepository {
+class MarketRepository {
     // Function to fetch restaurants
-    suspend fun getRestaurants(): List<RestaurantModel> {
+    suspend fun getMarketItems(): List<MarketItemModel> {
         return listOf(
-            RestaurantModel(
+            MarketItemModel(
                 1,
                 "Pizza Hut",
                 "Best pizza in town",
@@ -22,7 +22,7 @@ class RestaurantRepository {
                 "2024-01-01",
                 true
             ),
-            RestaurantModel(
+            MarketItemModel(
                 2,
                 "Burger King",
                 "Delicious burgers and fries",
@@ -38,7 +38,7 @@ class RestaurantRepository {
                 "2024-01-02",
                 true
             ),
-            RestaurantModel(
+            MarketItemModel(
                 3,
                 "Burger King",
                 "Delicious burgers and fries",
@@ -54,7 +54,7 @@ class RestaurantRepository {
                 "2024-01-02",
                 true
             ),
-            RestaurantModel(
+            MarketItemModel(
                 4,
                 "Burger King",
                 "Delicious burgers and fries",
@@ -70,7 +70,7 @@ class RestaurantRepository {
                 "2024-01-02",
                 true
             ),
-            RestaurantModel(
+            MarketItemModel(
                 5,
                 "Burger King",
                 "Delicious burgers and fries",

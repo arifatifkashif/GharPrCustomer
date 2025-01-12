@@ -132,7 +132,7 @@ fun HomeScreen(
                 Spacer(modifier = Modifier.height(16.dp))
                 MenuItemSection(uiState = uiState, navController = navController)
                 Spacer(modifier = Modifier.height(16.dp))
-                RestaurantSection(uiState = uiState, navController = navController)
+                MarketSection(uiState = uiState, navController = navController)
                 Spacer(modifier = Modifier.height(16.dp))
                 DealSection(uiState = uiState, navController = navController)
                 Spacer(modifier = Modifier.height(16.dp))
@@ -265,14 +265,14 @@ fun DealSection(uiState: HomeScreenState, navController: NavController) {
 }
 
 @Composable
-fun RestaurantSection(uiState: HomeScreenState, navController: NavController) {
+fun MarketSection(uiState: HomeScreenState, navController: NavController) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = "Restaurants",
+            text = "Market",
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(horizontal = 16.dp)
@@ -286,7 +286,7 @@ fun RestaurantSection(uiState: HomeScreenState, navController: NavController) {
         )
     }
 
-    if (uiState.isLoadingRestaurants) {
+    if (uiState.isLoadingMarketItems) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -303,7 +303,7 @@ fun RestaurantSection(uiState: HomeScreenState, navController: NavController) {
                 .padding(top = 16.dp),
             contentPadding = PaddingValues(horizontal = 16.dp)
         ) {
-            items(uiState.restaurants.size) { index ->
+            items(uiState.marketItems.size) { index ->
                 ConstraintLayout(
                     modifier = Modifier
                         .shadow(
@@ -314,13 +314,13 @@ fun RestaurantSection(uiState: HomeScreenState, navController: NavController) {
                         .background(White1, shape = RoundedCornerShape(14.dp))
                         .width(150.dp)
                         .clickable {
-                            navController.navigate("restaurant_detail/${uiState.restaurants[index].restaurantId}")
+                            navController.navigate("market_item_detail/${uiState.marketItems[index].marketItemId}")
                         },
                 ) {
                     val (image, name) = createRefs()
 
                     AsyncImage(
-                        model = (uiState.restaurants[index].imageUrl),
+                        model = (uiState.marketItems[index].imageUrl),
                         contentDescription = null,
                         error = painterResource(id = R.drawable.restaurant_1_temp),
                         modifier = Modifier
@@ -336,7 +336,7 @@ fun RestaurantSection(uiState: HomeScreenState, navController: NavController) {
                     )
 
                     Text(
-                        text = uiState.restaurants[index].name,
+                        text = uiState.marketItems[index].name,
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xff373b54),

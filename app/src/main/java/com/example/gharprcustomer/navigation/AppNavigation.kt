@@ -12,10 +12,11 @@ import com.example.gharprcustomer.ui.screens.CartScreen
 import com.example.gharprcustomer.ui.screens.DealDetailScreen
 import com.example.gharprcustomer.ui.screens.HomeScreen
 import com.example.gharprcustomer.ui.screens.MenuItemDetailScreen
-import com.example.gharprcustomer.ui.screens.RestaurantDetailScreen
+import com.example.gharprcustomer.ui.screens.MarketItemDetailScreen
 import com.example.gharprcustomer.viewmodel.CartScreenViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.activity.viewModels
+import com.example.gharprcustomer.ui.screens.MarketScreen
 
 sealed class Screen(val route: String) {
     object Splash : Screen("splash")
@@ -25,9 +26,10 @@ sealed class Screen(val route: String) {
     object Login : Screen("login")
     object SignUp : Screen("sign_up")
     object Home : Screen("home")
+    object Market : Screen("market")
     object Cart : Screen("cart")
     object MenuItemDetail : Screen("menu_item_detail/{menuItemId}")
-    object RestaurantDetail : Screen("restaurant_detail/{restaurantId}")
+    object MarketItemDetail : Screen("market_item_detail/{marketItemId}")
     object DealDetail : Screen("deal_detail/{dealId}")
 }
 
@@ -83,32 +85,36 @@ fun AppNavigation(modifier: Modifier, navController: NavHostController) {
             HomeScreen(navController = navController)
         }
 
+        composable(route = Screen.Market.route) {
+            MarketScreen(navController = navController)
+        }
+
         composable(route = Screen.Cart.route) {
             CartScreen(navController = navController)
         }
 
         composable(
             route = Screen.MenuItemDetail.route,
-            arguments = listOf(navArgument("menuItemId") { type = NavType.IntType })
+            arguments = listOf(navArgument("menuItemId") { type = NavType.StringType })
         ) { backStackEntry ->
-            val menuItemId = backStackEntry.arguments?.getInt("menuItemId") ?: -1
+            val menuItemId = backStackEntry.arguments?.getString("menuItemId") ?: "-1"
             MenuItemDetailScreen(menuItemId = menuItemId, navController = navController)
         }
 
         composable(
             route = Screen.DealDetail.route,
-            arguments = listOf(navArgument("dealId") { type = NavType.IntType })
+            arguments = listOf(navArgument("dealId") { type = NavType.StringType })
         ) { backStackEntry ->
-            val dealId = backStackEntry.arguments?.getInt("dealId") ?: -1
+            val dealId = backStackEntry.arguments?.getString("dealId") ?: "-1"
             DealDetailScreen(dealId = dealId, navController = navController)
         }
 
         composable(
-            route = Screen.RestaurantDetail.route,
-            arguments = listOf(navArgument("restaurantId") { type = NavType.IntType })
+            route = Screen.MarketItemDetail.route,
+            arguments = listOf(navArgument("marketItemId") { type = NavType.IntType })
         ) { backStackEntry ->
-            val restaurantId = backStackEntry.arguments?.getInt("restaurantId") ?: -1
-            RestaurantDetailScreen(restaurantId = restaurantId, navController = navController)
+            val marketItemId = backStackEntry.arguments?.getInt("marketItemId") ?: -1
+            MarketItemDetailScreen(marketItemId = marketItemId, navController = navController)
         }
     }
 }

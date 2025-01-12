@@ -6,8 +6,8 @@ plugins {
     id("com.google.devtools.ksp")
 
     // Dagger Hilt
-//    id("kotlin-kapt")
-//    id("com.google.dagger.hilt.android")
+    id("kotlin-kapt")
+    id("com.google.dagger.hilt.android")
 }
 
 android {
@@ -75,12 +75,12 @@ dependencies {
     // Room
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
-    ksp(libs.androidx.room.compiler.v250)
+    ksp(libs.androidx.room.compiler)
 
-    // Dagger Hilt
-//    implementation (libs.androidx.hilt.lifecycle.viewmodel)
-//    implementation (libs.hilt.android)
-//    kapt(libs.hilt.android.compiler)
+//   Dagger Hilt
+    implementation(libs.androidx.hilt.navigation.compose)
+    implementation(libs.hilt.android)
+    kapt(libs.hilt.android.compiler)
 
 //    implementation(libs.google.accompanist.pager)
 //    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
@@ -91,6 +91,6 @@ dependencies {
 }
 
 // Dagger Hilt
-//kapt {
-//    correctErrorTypes = true
-//}
+kapt {
+    correctErrorTypes = true
+}

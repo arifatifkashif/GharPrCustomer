@@ -18,8 +18,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.IconButton
@@ -49,19 +51,25 @@ import com.example.gharprcustomer.ui.theme.White1
 import com.example.gharprcustomer.viewmodel.CartScreenViewModel
 import androidx.navigation.compose.rememberNavController
 import androidx.compose.runtime.getValue
+import androidx.hilt.navigation.compose.hiltViewModel
 
 @Preview()
 @Composable
-fun CartScreenPreview(){
+fun CartScreenPreview() {
     val navController = rememberNavController()
     CartScreen(navController = navController)
 }
 
 @Composable
 fun CartScreen(navController: NavController) {
+    val cartViewModel: CartScreenViewModel = hiltViewModel()
+    val cartItems by cartViewModel.cartItems.collectAsState()
+    val totalItems by cartViewModel.totalItems.collectAsState()
+    val totalPrice by cartViewModel.totalPrice.collectAsState()
 
-    val cartViewModel: CartScreenViewModel = viewModel()
-    val uiState = cartViewModel.uiState.collectAsState().value
+    LaunchedEffect(true) {
+        cartViewModel.getCartItems()
+    }
 
     Column(
         modifier = Modifier
@@ -107,26 +115,29 @@ fun CartScreen(navController: NavController) {
         }
 
         if (
-            uiState.cartItems.isEmpty()
+            cartItems.isEmpty()
         ) {
             Text(
                 text = "Cart is Empty",
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             )
         } else {
-            CartList(
-                cartItems = uiState.cartItems,
-                onItemQuantityUpdated = { itemId, newQuantity ->
-                    cartViewModel.updateItemQuantity(itemId, newQuantity)
-                },
-                onItemRemoved = { itemId ->
-                    cartViewModel.updateItemQuantity(itemId, 0)
-                }
-            )
+            Box(modifier = Modifier.weight(1f)) {
+
+                CartList(
+                    cartItems = cartItems,
+                    onItemQuantityUpdated = { itemId, newQuantity ->
+                        cartViewModel.updateItemQuantity(itemId, newQuantity)
+                    },
+                    onItemRemoved = { itemId ->
+                        cartViewModel.removeItem(itemId)
+                    }
+                )
+            }
 
             CartSummary(
-                totalItems = uiState.totalItems,
-                totalPrice = uiState.totalPrice
+                totalItems = totalItems,
+                totalPrice = totalPrice
             )
         }
     }
@@ -139,7 +150,9 @@ fun CartList(
     onItemRemoved: (String) -> Unit
 ) {
     LazyColumn(
-        modifier = Modifier.fillMaxWidth().padding(top = 10.dp)
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 10.dp)
     ) {
         items(
             cartItems,
@@ -148,14 +161,33 @@ fun CartList(
             CartItem(
                 item = item,
                 onQuantityUpdated = { quantity ->
-                    onItemQuantityUpdated(item.id, quantity)
+                    onItemQuantityUpdated(item.itemId, quantity)
                 },
                 onRemoveItem = {
-                    onItemRemoved(item.id)
+                    onItemRemoved(item.itemId)
                 }
             )
         }
     }
+}
+
+@Preview
+@Composable
+fun CartItemPreview() {
+    val sampleCartItem = CartModel(
+        itemId = "1",
+        name = "Sample Item",
+        price = 10.99,
+        quantity = 2,
+        imageUrl = "https://sample.com/image.jpg" // You can use a placeholder URL here
+    )
+
+    // Pass the sampleCartItem to the CartItem composable
+    CartItem(
+        item = sampleCartItem,
+        onQuantityUpdated = { newQuantity -> },
+        onRemoveItem = {}
+    )
 }
 
 @SuppressLint("DefaultLocale")
@@ -170,7 +202,7 @@ fun CartItem(
             .fillMaxWidth()
             .padding(top = 8.dp, bottom = 8.dp)
     ) {
-        val (image, name, price, totalEachItem, quantity) = createRefs()
+        val (image, name, price, totalEachItem, quantity, remove) = createRefs()
 
         Box(
             modifier = Modifier
@@ -181,7 +213,7 @@ fun CartItem(
                     top.linkTo(parent.top)
                     bottom.linkTo(parent.bottom)
                 }
-        ){
+        ) {
             AsyncImage(
                 model = item.imageUrl,
                 contentDescription = null,
@@ -212,6 +244,20 @@ fun CartItem(
                     top.linkTo(name.bottom)
                 }
                 .padding(start = 8.dp)
+        )
+
+        Image(
+            painter = painterResource(id = R.drawable.remove_icon),
+            contentDescription = null,
+            modifier = Modifier
+                .constrainAs(remove) {
+                    end.linkTo(parent.end)
+                    top.linkTo(parent.top)
+                }
+                .clickable {
+                    onRemoveItem()
+                }
+                .padding(4.dp)
         )
 
         Text(

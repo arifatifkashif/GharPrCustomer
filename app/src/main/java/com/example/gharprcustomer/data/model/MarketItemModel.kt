@@ -1,7 +1,7 @@
 package com.example.gharprcustomer.data.model
 
-data class RestaurantModel(
-    val restaurantId: Int,
+data class MarketItemModel(
+    val marketItemId: Int,
     val name: String,               // Name of the restaurant
     val description: String?,       // Optional description (nullable)
     val address: String?,           // Optional address (nullable)
