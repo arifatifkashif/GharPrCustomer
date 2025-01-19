@@ -26,6 +26,9 @@ class CartScreenViewModel @Inject constructor(
     private val _totalPrice = MutableStateFlow(0.0)
     val totalPrice: StateFlow<Double> = _totalPrice
 
+    private val _totalUniqueItems = MutableStateFlow(0)
+    val totalUniqueItems: StateFlow<Int> = _totalUniqueItems
+
     // Fetch cart items from the repository
     fun getCartItems() {
         viewModelScope.launch {
@@ -95,14 +98,17 @@ class CartScreenViewModel @Inject constructor(
         val items = _cartItems.value
         var totalItemCount = 0
         var totalPriceAmount = 0.0
+        var totalUniqueItems = 0
 
         items.forEach { item ->
             totalItemCount += item.quantity
             totalPriceAmount += item.price * item.quantity
+            totalUniqueItems = items.size
         }
 
         // Update the state flows for total items and total price
         _totalItems.value = totalItemCount
         _totalPrice.value = totalPriceAmount
+        _totalUniqueItems.value = totalUniqueItems
     }
 }

@@ -77,10 +77,13 @@ dependencies {
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
 
-//   Dagger Hilt
+    // Dagger Hilt
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.hilt.android)
     kapt(libs.hilt.android.compiler)
+
+    //
+    implementation(libs.androidx.material.icons.extended)
 
 //    implementation(libs.google.accompanist.pager)
 //    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")

@@ -4,6 +4,8 @@ import android.content.Context
 import androidx.room.Room
 import com.example.gharprcustomer.data.local.AppDatabase
 import com.example.gharprcustomer.data.repository.CartRepository
+import com.example.gharprcustomer.data.repository.MarketRepository
+import com.example.gharprcustomer.data.repository.OrdersRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -31,5 +33,19 @@ object AppModule {
     @Singleton
     fun provideCartRepository(appDatabase: AppDatabase): CartRepository {
         return CartRepository(appDatabase)
+    }
+
+    // Provide MarketRepository instance
+    @Provides
+    @Singleton
+    fun provideMarketRepository(): MarketRepository {
+        return MarketRepository()
+    }
+
+    // Provide OrdersRepository instance
+    @Provides
+    @Singleton
+    fun provideOrdersRepository(): OrdersRepository {
+        return OrdersRepository()
     }
 }

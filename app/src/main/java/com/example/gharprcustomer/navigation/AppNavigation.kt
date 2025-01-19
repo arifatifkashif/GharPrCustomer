@@ -17,6 +17,8 @@ import com.example.gharprcustomer.viewmodel.CartScreenViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.activity.viewModels
 import com.example.gharprcustomer.ui.screens.MarketScreen
+import com.example.gharprcustomer.ui.screens.OrdersScreen
+import com.example.gharprcustomer.ui.screens.SettingsScreen
 
 sealed class Screen(val route: String) {
     object Splash : Screen("splash")
@@ -28,6 +30,15 @@ sealed class Screen(val route: String) {
     object Home : Screen("home")
     object Market : Screen("market")
     object Cart : Screen("cart")
+    object Orders : Screen("orders")
+    object Settings: Screen("settings")
+    object Profile : Screen("profile")
+    object Addresses : Screen("addresses")
+    object HelpSupport : Screen("help_support")
+    object About : Screen("about")
+    object Share : Screen("share")
+    object Notifications : Screen("notifications")
+    object Privacy : Screen("privacy")
     object MenuItemDetail : Screen("menu_item_detail/{menuItemId}")
     object MarketItemDetail : Screen("market_item_detail/{marketItemId}")
     object DealDetail : Screen("deal_detail/{dealId}")
@@ -91,6 +102,14 @@ fun AppNavigation(modifier: Modifier, navController: NavHostController) {
 
         composable(route = Screen.Cart.route) {
             CartScreen(navController = navController)
+        }
+
+        composable(route = Screen.Orders.route) {
+            OrdersScreen(navController = navController)
+        }
+
+        composable(route = Screen.Settings.route) {
+            SettingsScreen(navController = navController)
         }
 
         composable(

@@ -73,6 +73,8 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.gharprcustomer.R
+import com.example.gharprcustomer.navigation.Screen
+import com.example.gharprcustomer.ui.components.BottomBarWithFab
 import com.example.gharprcustomer.ui.theme.Grey
 import com.example.gharprcustomer.ui.theme.Orange
 import com.example.gharprcustomer.ui.theme.White1
@@ -94,51 +96,68 @@ fun HomeScreen(
     val uiState = viewModel.uiState.collectAsState().value
 
     // Scaffold
-    val scaffoldState = rememberScaffoldState()
+//    val scaffoldState = rememberScaffoldState()
+//
+//    Scaffold(
+//        scaffoldState = scaffoldState,
+//        bottomBar = { BottomBar() },
+//        floatingActionButton = {
+//            FloatingActionButton(
+//                onClick = {
+//                    navController.navigate("cart")
+//                },
+//                contentColor = Color.White,
+//                backgroundColor = Orange
+//            ) {
+//                Icon(
+//                    painter = painterResource(id = R.drawable.cart_icon),
+//                    contentDescription = "Cart",
+//                    modifier = Modifier
+//                        .height(30.dp)
+//                        .width(30.dp)
+//                )
+//            }
+//        },
+//        backgroundColor = Color(0xfff8f8f8),
+//        floatingActionButtonPosition = FabPosition.Center,
+//        isFloatingActionButtonDocked = true,
+//        content = { paddingValues ->
+//            Column(
+//                modifier = Modifier
+//                    .fillMaxSize()
+//                    .verticalScroll(rememberScrollState())
+//                    .padding(paddingValues)
+//            ) {
 
-    Scaffold(
-        scaffoldState = scaffoldState,
-        bottomBar = { BottomBar() },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = {
-                    navController.navigate("cart")
-                },
-                contentColor = Color.White,
-                backgroundColor = Orange
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.cart_icon),
-                    contentDescription = "Cart",
-                    modifier = Modifier
-                        .height(30.dp)
-                        .width(30.dp)
-                )
-            }
-        },
-        backgroundColor = Color(0xfff8f8f8),
-        floatingActionButtonPosition = FabPosition.Center,
-        isFloatingActionButtonDocked = true,
-        content = { paddingValues ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
-                    .padding(paddingValues)
-            ) {
-                TopBar(uiState = uiState)
-                BannerSection(uiState = uiState)
-                CategorySection(uiState = uiState)
-                Spacer(modifier = Modifier.height(16.dp))
-                MenuItemSection(uiState = uiState, navController = navController)
-                Spacer(modifier = Modifier.height(16.dp))
-                MarketSection(uiState = uiState, navController = navController)
-                Spacer(modifier = Modifier.height(16.dp))
-                DealSection(uiState = uiState, navController = navController)
-                Spacer(modifier = Modifier.height(16.dp))
-            }
+
+    BottomBarWithFab(
+        navController = navController,
+        currentRoute = Screen.Home.route
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .verticalScroll(rememberScrollState())
+        ) {
+
+            TopBar(uiState = uiState)
+            BannerSection(uiState = uiState)
+            CategorySection(uiState = uiState)
+            Spacer(modifier = Modifier.height(16.dp))
+            MenuItemSection(uiState = uiState, navController = navController)
+            Spacer(modifier = Modifier.height(16.dp))
+            MarketSection(uiState = uiState, navController = navController)
+            Spacer(modifier = Modifier.height(16.dp))
+            DealSection(uiState = uiState, navController = navController)
+            Spacer(modifier = Modifier.height(16.dp))
         }
-    )
+    }
+
+
+//            }
+//        }
+//    )
 }
 
 @Composable

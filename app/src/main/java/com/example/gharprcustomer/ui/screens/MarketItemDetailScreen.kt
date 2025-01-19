@@ -1,418 +1,325 @@
 package com.example.gharprcustomer.ui.screens
 
 import android.widget.Toast
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.rounded.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.constraintlayout.compose.ConstraintLayout
-import androidx.navigation.NavController
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
-import com.example.gharprcustomer.R
-import com.example.gharprcustomer.ui.theme.White1
-import com.example.gharprcustomer.viewmodel.HomeScreenViewModel
-import androidx.compose.material3.Text
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.TextButton
-import androidx.compose.runtime.mutableStateOf
-import com.example.gharprcustomer.ui.theme.Orange
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
+import coil.compose.AsyncImage
+import com.example.gharprcustomer.ui.components.DealItemCard
+import com.example.gharprcustomer.ui.components.MenuItemCard
+import com.example.gharprcustomer.ui.theme.*
+import com.example.gharprcustomer.viewmodel.HomeScreenViewModel
+import androidx.compose.ui.graphics.Brush
+import com.example.gharprcustomer.ui.components.ItemDetailTopBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MarketItemDetailScreen(marketItemId: Int, navController: NavController) {
-    val viewModel = HomeScreenViewModel()
-    val uiState = viewModel.uiState.collectAsState().value
-    val restaurant = uiState.marketItems.find { it.marketItemId == marketItemId }
+fun MarketItemDetailScreen(
+    marketItemId: Int,
+    navController: NavController,
+    viewModel: HomeScreenViewModel = hiltViewModel()
+) {
+    val context = LocalContext.current
+    val uiState by viewModel.uiState.collectAsState()
+
+    // Find specific market item
+    val marketItem = uiState.marketItems.find { it.marketItemId == marketItemId }
+
+    // Filter menu items and deals for this specific market
     val menuItems = uiState.menuItems.filter { it.marketItemId == marketItemId }
     val deals = uiState.deals.filter { it.marketItemId == marketItemId }
-    var selectedTab by remember { mutableStateOf("Menu") }
 
-    if (restaurant == null) {
-        Toast.makeText(LocalContext.current, "Restaurant not found", Toast.LENGTH_SHORT).show()
+    // Get unique categories for this market
+    val categories = remember(menuItems) {
+        uiState.categories
+            .filter { category ->
+                menuItems.any { it.categoryId == category.categoryId }
+            }
+    }
+
+    var selectedTab by remember { mutableStateOf("Menu") }
+    var selectedCategory by remember { mutableStateOf<Int?>(null) }
+
+    if (marketItem == null) {
+        Toast.makeText(context, "Restaurant not found", Toast.LENGTH_SHORT).show()
+        navController.popBackStack()
         return
     }
 
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xfff8f8f8))
-            .padding(horizontal = 16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        item {
-            ConstraintLayout(
-                modifier = Modifier
-                    .padding(top = 32.dp, bottom = 16.dp)
-                    .fillMaxWidth()
-            ) {
-                val (back, favorite) = createRefs()
+    // State to track favorite status
+    var isFavorite by remember { mutableStateOf(marketItem?.isFavorite ?: false) }
 
-                Image(
-                    painter = painterResource(com.example.gharprcustomer.R.drawable.back_icon),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(40.dp)
-                        .padding(4.dp)
-                        .clip(CircleShape)
-                        .constrainAs(back) {
-                            top.linkTo(parent.top)
-                            bottom.linkTo(parent.bottom)
-                            start.linkTo(parent.start)
-                        }
-                        .clickable { navController.popBackStack() }
-                )
 
-                Image(
-                    painter = painterResource(com.example.gharprcustomer.R.drawable.favorite_icon),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(40.dp)
-                        .padding(4.dp)
-                        .clip(CircleShape)
-                        .constrainAs(favorite) {
-                            top.linkTo(parent.top)
-                            bottom.linkTo(parent.bottom)
-                            end.linkTo(parent.end)
-                        }
-                        .clickable {}
-                )
-            }
+    Scaffold(
+        topBar = {
+            ItemDetailTopBar(
+                title = marketItem.name,
+                onBackClick = { navController.popBackStack() },
+                onFavoriteClick = { isFavorite = !isFavorite },
+                isFavorite = isFavorite
+            )
         }
-
-        item {
-            Column(
-                modifier = Modifier
-                    .background(White1)
-                    .padding(10.dp)
-                    .fillMaxWidth()
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-
+    ) { paddingValues ->
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .background(Grey)
+        ) {
+            // Restaurant Header
+            item {
+                Box(modifier = Modifier.fillMaxWidth()) {
                     AsyncImage(
-                        model = ImageRequest.Builder(LocalContext.current)
-                            .data(restaurant.imageUrl).build(),
-                        error = painterResource(id = R.drawable.restaurant_1_temp),
-                        contentDescription = null,
+                        model = marketItem.imageUrl,
+                        contentDescription = marketItem.name,
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
-                            .size(130.dp)
-                            .clip(CircleShape)
+                            .fillMaxWidth()
+                            .height(220.dp)  // Slightly increased height
                     )
 
-                    Spacer(modifier = Modifier.width(10.dp))
+                    // Overlay with restaurant details
+                    Box(
+                        modifier = Modifier
+                            .matchParentSize()
+                            .background(
+                                brush = Brush.verticalGradient(
+                                    colors = listOf(
+                                        Color.Transparent,
+                                        Color.Black.copy(alpha = 0.7f)
+                                    )
+                                )
+                            )
+                    )
 
-                    Column {
+                    Column(
+                        modifier = Modifier
+                            .align(Alignment.BottomStart)
+                            .padding(16.dp)
+                    ) {
                         Text(
-                            text = restaurant.name,
-                            color = Color.Black,
-                            fontSize = 18.sp,
+                            text = marketItem.name,
+                            style = MaterialTheme.typography.headlineMedium,
+                            color = White1,
                             fontWeight = FontWeight.Bold,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis
                         )
 
-                        Spacer(modifier = Modifier.height(10.dp))
+                        Spacer(modifier = Modifier.height(8.dp))
 
-                        Text(
-                            text = "${restaurant.description}",
-                            color = Color.Black,
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Light,
-                        )
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(10.dp))
-
-                Text(
-                    text = "Address: ${restaurant.address}",
-                    color = Color.Black,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium,
-                )
-
-                Spacer(modifier = Modifier.height(10.dp))
-            }
-        }
-
-        item {
-            Row(
-                modifier = Modifier
-                    .background(color = Color.Transparent)
-                    .padding(vertical = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                TextButton(
-                    modifier = Modifier
-                        .weight(1f)
-                        .background(if (selectedTab == "Menu") Orange else White1),
-                    shape = RoundedCornerShape(0),
-                    onClick = { selectedTab = "Menu" }
-                ) {
-                    Text(
-                        text = "Menu",
-                        color = if (selectedTab == "Menu") White1 else Orange
-                    )
-                }
-
-                Spacer(modifier = Modifier.width(5.dp))
-
-                TextButton(
-                    modifier = Modifier
-                        .weight(1f)
-                        .background(if (selectedTab == "Deals") Orange else White1),
-                    shape = RoundedCornerShape(0),
-                    onClick = { selectedTab = "Deals" }
-                ) {
-                    Text(
-                        text = "Deals",
-                        color = if (selectedTab == "Deals") White1 else Orange
-                    )
-                }
-            }
-            Spacer(modifier = Modifier.height(10.dp))
-        }
-
-        if (selectedTab == "Menu") {
-            items(menuItems.chunked(2)) { rowIndex ->
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(bottom = 10.dp)
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(5.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        rowIndex.forEach { menuItem ->
-                            ConstraintLayout(
-                                modifier = Modifier
-                                    .shadow(
-                                        elevation = 4.dp,
-                                        shape = RoundedCornerShape(14.dp),
-                                        clip = false
-                                    )
-                                    .background(White1, shape = RoundedCornerShape(14.dp))
-                                    .width(150.dp)
-                                    .padding(8.dp)
-                            ) {
-                                val (image, name, price, addButton) = createRefs()
-                                AsyncImage(
-                                    model = (menuItem.images[0]),
-                                    contentDescription = null,
-                                    error = painterResource(id = R.drawable.item_2_temp),
-                                    modifier = Modifier
-                                        .clip(CircleShape)
-                                        .size(100.dp)
-                                        .background(White1)
-                                        .constrainAs(image) {
-                                            top.linkTo(parent.top, margin = 4.dp)
-                                            start.linkTo(parent.start)
-                                            end.linkTo(parent.end)
-                                        },
-                                    contentScale = ContentScale.Crop,
+                        // Enhanced rating and additional info row
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            // Rating
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    Icons.Rounded.Star,
+                                    contentDescription = "Rating",
+                                    tint = Orange,
+                                    modifier = Modifier.size(20.dp)
                                 )
-
+                                Spacer(modifier = Modifier.width(4.dp))
                                 Text(
-                                    text = menuItem.name,
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color(0xff373b54),
-                                    textAlign = TextAlign.Center,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                    modifier = Modifier
-                                        .constrainAs(name) {
-                                            top.linkTo(image.bottom)
-                                            start.linkTo(parent.start)
-                                            end.linkTo(parent.end)
-                                        }
-                                        .padding(8.dp)
+                                    text = marketItem.rating.toString(),
+                                    color = White1,
+                                    style = MaterialTheme.typography.bodyMedium
                                 )
+                            }
 
+                            // Delivery Time
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    Icons.Rounded.DeliveryDining,
+                                    contentDescription = "Delivery Time",
+                                    tint = Orange,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                                Spacer(modifier = Modifier.width(4.dp))
                                 Text(
-                                    text = "$${menuItem.price}",
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Orange,
-                                    textAlign = TextAlign.Center,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                    modifier = Modifier
-                                        .constrainAs(price) {
-                                            top.linkTo(name.bottom)
-                                            start.linkTo(parent.start)
-                                            end.linkTo(parent.end)
-                                        }
-                                        .padding(8.dp)
+                                    text = marketItem.deliveryTime,
+                                    color = White1,
+                                    style = MaterialTheme.typography.bodyMedium
                                 )
+                            }
 
-                                Button(
-                                    onClick = {
-                                        navController.navigate("menu_item_detail/${menuItem.itemId}")
-                                    },
-                                    shape = RoundedCornerShape(14.dp),
-                                    colors = ButtonDefaults.buttonColors(containerColor = Orange),
-                                    contentPadding = PaddingValues(horizontal = 16.dp),
-                                    modifier = Modifier
-                                        .height(32.dp)
-                                        .constrainAs(addButton) {
-                                            top.linkTo(price.bottom)
-                                            start.linkTo(parent.start)
-                                            end.linkTo(parent.end)
-                                            bottom.linkTo(parent.bottom, margin = 4.dp)
-                                        }
-                                ) {
-                                    Text(
-                                        text = "+ Add",
-                                        fontSize = 14.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        color = Color.White
-                                    )
-                                }
+                            // Distance (if available)
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    Icons.Rounded.LocationOn,
+                                    contentDescription = "Distance",
+                                    tint = Orange,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(
+                                    text = "2.5 km",  // You can replace with actual distance if available
+                                    color = White1,
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
                             }
                         }
                     }
                 }
             }
-        } else if (selectedTab == "Deals") {
-            items(deals.chunked(2)) { rowIndex ->
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(bottom = 10.dp)
+
+            // Tabs
+            item {
+                TabRow(
+                    selectedTabIndex = if (selectedTab == "Menu") 0 else 1,
+                    containerColor = White1,
+                    contentColor = Orange
                 ) {
-                    Row(
+                    Tab(
+                        selected = selectedTab == "Menu",
+                        onClick = { selectedTab = "Menu" },
+                        text = { Text("Menu") }
+                    )
+                    Tab(
+                        selected = selectedTab == "Deals",
+                        onClick = { selectedTab = "Deals" },
+                        text = { Text("Deals") }
+                    )
+                }
+            }
+
+            // Category Chips (for Menu)
+            if (selectedTab == "Menu") {
+                item {
+                    LazyRow(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(5.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween
+                            .padding(vertical = 8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        contentPadding = PaddingValues(
+                            start = 8.dp,
+                            end = 8.dp
+                        )  // Added initial start padding
                     ) {
-                        rowIndex.forEach { dealItem ->
-                            ConstraintLayout(
-                                modifier = Modifier
-                                    .width(150.dp)
-                                    .shadow(
-                                        elevation = 4.dp,
-                                        shape = RoundedCornerShape(14.dp),
-                                        clip = false
-                                    )
-//                                    .border(3.dp, Grey, shape = RoundedCornerShape(14.dp))
-                                    .background(
-                                        color = Color.White,
-                                        shape = RoundedCornerShape(14.dp)
-                                    )
-                                    .padding(16.dp)
-                            ) {
-                                val (name, image, price, addButton) = createRefs()
-
-                                androidx.compose.material.Text(
-                                    text = dealItem.name,
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color(0xff373b54),
-                                    textAlign = TextAlign.Center,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                    modifier = Modifier
-                                        .constrainAs(name) {
-                                            top.linkTo(parent.top, margin = 8.dp)
-                                            start.linkTo(parent.start)
-                                            end.linkTo(parent.end)
-                                        }
+                        item {
+                            FilterChip(
+                                selected = selectedCategory == null,
+                                onClick = { selectedCategory = null },
+                                label = { Text("All") },
+                                colors = FilterChipDefaults.filterChipColors(
+                                    selectedContainerColor = Orange,
+                                    selectedLabelColor = White1
                                 )
-
-                                AsyncImage(
-                                    model = (dealItem.images[0]),
-                                    contentDescription = null,
-                                    error = painterResource(id = R.drawable.deal_1_temp),
-                                    modifier = Modifier
-                                        .size(100.dp)
-                                        .constrainAs(image) {
-                                            top.linkTo(name.bottom)
-                                            start.linkTo(parent.start)
-                                            end.linkTo(parent.end)
-                                        }
+                            )
+                        }
+                        items(categories) { category ->
+                            FilterChip(
+                                selected = selectedCategory == category.categoryId,
+                                onClick = { selectedCategory = category.categoryId },
+                                label = { Text(category.name) },
+                                colors = FilterChipDefaults.filterChipColors(
+                                    selectedContainerColor = Orange,
+                                    selectedLabelColor = White1
                                 )
-
-                                androidx.compose.material.Text(
-                                    text = "$%.2f".format(dealItem.price),
-                                    fontSize = 18.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color(0xff373b54),
-                                    modifier = Modifier.constrainAs(price) {
-                                        top.linkTo(image.bottom)
-                                        start.linkTo(parent.start)
-                                        end.linkTo(parent.end)
-                                    }
-                                )
-
-                                Button(
-                                    onClick = {
-                                        navController.navigate("deal_detail/${dealItem.dealId}")
-                                    },
-                                    shape = RoundedCornerShape(14.dp),
-                                    colors = ButtonDefaults.buttonColors(containerColor = Orange),
-                                    contentPadding = PaddingValues(horizontal = 16.dp),
-                                    modifier = Modifier
-                                        .height(32.dp)
-                                        .constrainAs(addButton) {
-                                            top.linkTo(price.bottom, margin = 14.dp)
-                                            start.linkTo(parent.start)
-                                            end.linkTo(parent.end)
-                                        }
-                                ) {
-                                    androidx.compose.material.Text(
-                                        text = "+ Add",
-                                        fontSize = 14.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        color = Color.White
-                                    )
-                                }
-                            }
+                            )
                         }
                     }
                 }
             }
+
+            // Content based on selected tab
+            if (selectedTab == "Menu") {
+                val filteredItems = if (selectedCategory != null) {
+                    menuItems.filter { it.categoryId == selectedCategory }
+                } else {
+                    menuItems
+                }
+
+                items(filteredItems.chunked(2)) { rowItems ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        rowItems.forEach { menuItem ->
+                            MenuItemCard(
+                                menuItem = menuItem,
+                                modifier = Modifier.weight(1f),
+                                onClick = {
+                                    navController.navigate("menu_item_detail/${menuItem.itemId}")
+                                }
+                            )
+                        }
+
+                        // Fill remaining space if odd number of items
+                        if (rowItems.size == 1) {
+                            Spacer(modifier = Modifier.weight(1f))
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+            } else {
+                // Deals Tab
+                items(deals) { deal ->
+                    DealItemCard(
+                        deal = deal,
+                        modifier = Modifier,
+                        onClick = {
+                            navController.navigate("deal_detail/${deal.dealId}")
+                        }
+                    )
+                }
+
+                item {
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+            }
         }
+    }
+}
+
+@Composable
+private fun FilterChip(
+    selected: Boolean,
+    onClick: () -> Unit,
+    text: String,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .background(
+                color = if (selected) Orange else Color.White,
+                shape = RoundedCornerShape(20.dp)
+            )
+            .shadow(
+                elevation = if (selected) 0.dp else 2.dp,
+                shape = RoundedCornerShape(20.dp)
+            )
+            .clickable(onClick = onClick)
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+    ) {
+        Text(
+            text = text,
+            color = if (selected) Color.White else Color.Black,
+            fontSize = 14.sp,
+            fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal
+        )
     }
 }

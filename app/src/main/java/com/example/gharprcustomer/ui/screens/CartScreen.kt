@@ -2,8 +2,11 @@ package com.example.gharprcustomer.ui.screens
 
 import android.annotation.SuppressLint
 import android.util.Log
+import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -22,9 +25,20 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Remove
+import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -52,14 +66,18 @@ import com.example.gharprcustomer.viewmodel.CartScreenViewModel
 import androidx.navigation.compose.rememberNavController
 import androidx.compose.runtime.getValue
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
+import com.example.gharprcustomer.ui.components.EmptyState
 
-@Preview()
-@Composable
-fun CartScreenPreview() {
-    val navController = rememberNavController()
-    CartScreen(navController = navController)
-}
-
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CartScreen(navController: NavController) {
     val cartViewModel: CartScreenViewModel = hiltViewModel()
@@ -71,74 +89,65 @@ fun CartScreen(navController: NavController) {
         cartViewModel.getCartItems()
     }
 
-    Column(
-        modifier = Modifier
-            .background(White1)
-            .padding(16.dp)
-            .fillMaxSize()
-    ) {
-        ConstraintLayout(
-            modifier = Modifier
-                .fillMaxWidth()
-        ) {
-            val (back, myCart) = createRefs()
-            Image(
-                painter = painterResource(R.drawable.back_icon),
-                contentDescription = null,
-                modifier = Modifier
-                    .size(40.dp)
-                    .padding(4.dp)
-                    .clip(CircleShape)
-                    .constrainAs(back) {
-                        top.linkTo(parent.top)
-                        bottom.linkTo(parent.bottom)
-                        start.linkTo(parent.start)
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(
+                        text = "My Cart",
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                },
+                navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(
+                            Icons.Default.ArrowBack,
+                            contentDescription = "Back",
+                            modifier = Modifier.size(24.dp)
+                        )
                     }
-                    .clickable {
-                        navController.popBackStack()
-                    }
-            )
-            Text(
-                text = "My Cart",
-                color = Orange,
-                textAlign = TextAlign.Center,
-                fontWeight = FontWeight.Bold,
-                fontSize = 25.sp,
-                modifier = Modifier
-                    .constrainAs(myCart) {
-                        top.linkTo(parent.top)
-                        bottom.linkTo(parent.bottom)
-                        start.linkTo(parent.start)
-                        end.linkTo(parent.end)
-                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = White1,
+                    navigationIconContentColor = Color.Black,
+                    titleContentColor = Color.Black
+                )
             )
         }
-
-        if (
-            cartItems.isEmpty()
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .padding(paddingValues)
+                .background(White1)
+                .padding(horizontal = 16.dp)
+                .fillMaxSize()
         ) {
-            Text(
-                text = "Cart is Empty",
-                modifier = Modifier.align(Alignment.CenterHorizontally)
-            )
-        } else {
-            Box(modifier = Modifier.weight(1f)) {
+            if (cartItems.isEmpty()) {
+                EmptyState(
+                    icon = Icons.Outlined.ShoppingCart,
+                    title = "Your Cart is Empty",
+                    message = "Looks like you haven't added any items yet"
+                )
+            } else {
+                Box(modifier = Modifier.weight(1f)) {
+                    CartList(
+                        cartItems = cartItems,
+                        onItemQuantityUpdated = { itemId, newQuantity ->
+                            cartViewModel.updateItemQuantity(itemId, newQuantity)
+                        },
+                        onItemRemoved = { itemId ->
+                            cartViewModel.removeItem(itemId)
+                        }
+                    )
+                }
 
-                CartList(
-                    cartItems = cartItems,
-                    onItemQuantityUpdated = { itemId, newQuantity ->
-                        cartViewModel.updateItemQuantity(itemId, newQuantity)
-                    },
-                    onItemRemoved = { itemId ->
-                        cartViewModel.removeItem(itemId)
-                    }
+                CartSummary(
+                    totalItems = totalItems,
+                    totalPrice = totalPrice
                 )
             }
-
-            CartSummary(
-                totalItems = totalItems,
-                totalPrice = totalPrice
-            )
         }
     }
 }

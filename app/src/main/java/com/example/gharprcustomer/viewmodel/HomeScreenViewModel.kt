@@ -16,6 +16,7 @@ import com.example.gharprcustomer.data.repository.MenuItemRepository
 import com.example.gharprcustomer.data.repository.MarketRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class HomeScreenViewModel(
@@ -45,6 +46,21 @@ class HomeScreenViewModel(
         loadMarketItems()
         loadDeals()
     }
+
+    fun toggleFavoriteMarketItem(marketItemId: Int) {
+        _uiState.update { currentState ->
+            val updatedMarketItems = currentState.marketItems.map { marketItem ->
+                if (marketItem.marketItemId == marketItemId) {
+                    marketItem.copy(isFavorite = !marketItem.isFavorite)
+                } else {
+                    marketItem
+                }
+            }
+
+            currentState.copy(marketItems = updatedMarketItems)
+        }
+    }
+
 
     private fun loadCustomer() {
         viewModelScope.launch {
