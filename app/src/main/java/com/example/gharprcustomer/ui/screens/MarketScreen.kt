@@ -1,5 +1,6 @@
 package com.example.gharprcustomer.ui.screens
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -8,6 +9,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.outlined.Tune
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -24,7 +26,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.gharprcustomer.navigation.Screen
 import com.example.gharprcustomer.ui.components.BottomBarWithFab
-import com.example.gharprcustomer.ui.components.MarketItem
+import com.example.gharprcustomer.ui.components.MarketItemCard
 import com.example.gharprcustomer.ui.theme.Grey
 import com.example.gharprcustomer.ui.theme.Orange
 import com.example.gharprcustomer.viewmodel.MarketScreenViewModel
@@ -35,6 +37,7 @@ fun MarketScreen(
     viewModel: MarketScreenViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    var isSearchVisible by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         viewModel.loadMarkets()
@@ -47,21 +50,57 @@ fun MarketScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
                 .padding(paddingValues)
         ) {
-            // Title and Search Section
-            Column(
+            // Top Bar
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.background)
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                    .background(MaterialTheme.colorScheme.surface)
+                    .padding(top = 16.dp)
+                    .padding(horizontal = 16.dp)
             ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = "Markets",
+                        style = MaterialTheme.typography.headlineMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontWeight = FontWeight.Bold
+                    )
 
-                // Modern Search Bar
+                    Row {
+                        // Search Icon
+                        IconButton(onClick = { isSearchVisible = !isSearchVisible }) {
+                            Icon(
+                                imageVector = Icons.Default.Search,
+                                contentDescription = "Search Markets",
+                                tint = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+
+                        // Filter Icon
+                        IconButton(onClick = { /* Open market filters */ }) {
+                            Icon(
+                                imageVector = Icons.Outlined.Tune,
+                                contentDescription = "Filter Markets",
+                                tint = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                    }
+                }
+            }
+
+            // Animated Search Bar
+            AnimatedVisibility(visible = isSearchVisible) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 8.dp)
+                        .padding(vertical = 8.dp, horizontal = 16.dp)
                         .height(56.dp)
                         .shadow(
                             elevation = 4.dp,
@@ -92,7 +131,7 @@ fun MarketScreen(
                                 .fillMaxHeight(),
                             placeholder = {
                                 Text(
-                                    "Search here...",
+                                    "Search markets...",
                                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                                 )
                             },
@@ -132,12 +171,14 @@ fun MarketScreen(
                 }
             } else {
                 LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
                     contentPadding = PaddingValues(8.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     items(uiState.filteredMarkets) { market ->
-                        MarketItem(
+                        MarketItemCard(
                             marketItem = market,
                             onClick = {
                                 navController.navigate("market_item_detail/${market.marketItemId}")

@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.konan.properties.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -8,6 +10,7 @@ plugins {
     // Dagger Hilt
     id("kotlin-kapt")
     id("com.google.dagger.hilt.android")
+    alias(libs.plugins.google.gms.google.services)
 }
 
 android {
@@ -25,7 +28,32 @@ android {
     }
 
     buildTypes {
+
+        debug {
+            buildConfigField(
+                "String",
+                "SUPABASE_URL",
+                "\"https://your-project-id.supabase.co\""
+            )
+            buildConfigField(
+                "String",
+                "SUPABASE_ANON_KEY",
+                "\"your-anon-key-here\""
+            )
+        }
+
         release {
+            buildConfigField(
+                "String",
+                "SUPABASE_URL",
+                "\"https://your-project-id.supabase.co\""
+            )
+            buildConfigField(
+                "String",
+                "SUPABASE_ANON_KEY",
+                "\"your-anon-key-here\""
+            )
+
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -55,6 +83,8 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.firebase.auth)
+    implementation(libs.firebase.firestore)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -82,8 +112,14 @@ dependencies {
     implementation(libs.hilt.android)
     kapt(libs.hilt.android.compiler)
 
-    //
+    // Material Icons
     implementation(libs.androidx.material.icons.extended)
+
+    // Supabase
+    implementation("io.github.jan-tennert.supabase:gotrue-kt:2.1.0") // Authentication
+    implementation("io.github.jan-tennert.supabase:postgrest-kt:2.1.0") // Database
+    implementation("io.github.jan-tennert.supabase:storage-kt:2.1.0") // File Storage
+    implementation("io.ktor:ktor-client-android:2.3.7") // Ktor HTTP Client for Android
 
 //    implementation(libs.google.accompanist.pager)
 //    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")

@@ -4,7 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.gharprcustomer.ui.screens.AuthOptionScreen
+import com.example.gharprcustomer.ui.screens.auth.AuthOptionScreen
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
@@ -13,12 +13,11 @@ import com.example.gharprcustomer.ui.screens.DealDetailScreen
 import com.example.gharprcustomer.ui.screens.HomeScreen
 import com.example.gharprcustomer.ui.screens.MenuItemDetailScreen
 import com.example.gharprcustomer.ui.screens.MarketItemDetailScreen
-import com.example.gharprcustomer.viewmodel.CartScreenViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.activity.viewModels
 import com.example.gharprcustomer.ui.screens.MarketScreen
 import com.example.gharprcustomer.ui.screens.OrdersScreen
 import com.example.gharprcustomer.ui.screens.SettingsScreen
+import com.example.gharprcustomer.ui.screens.auth.LoginScreen
+import com.example.gharprcustomer.ui.screens.auth.SignUpScreen
 
 sealed class Screen(val route: String) {
     object Splash : Screen("splash")
@@ -49,7 +48,7 @@ fun AppNavigation(modifier: Modifier, navController: NavHostController) {
 
     NavHost(
         navController = navController,
-        startDestination = Screen.Home.route
+        startDestination = Screen.AuthOption.route
     ) {
 //        composable(route = Screen.Splash.route) {
 //            SplashScreen(
@@ -80,18 +79,18 @@ fun AppNavigation(modifier: Modifier, navController: NavHostController) {
                 onSignUpClick = { navController.navigate(Screen.SignUp.route) }
             )
         }
-//        composable(route = Screen.Login.route) {
-//            LoginScreen(
+        composable(route = Screen.Login.route) {
+            LoginScreen(
 //                onLoginSuccess = { navController.navigate(Screen.Home.route) },
-//                onSignUpClick = { navController.navigate(Screen.SignUp.route) }
-//            )
-//        }
-//        composable(route = Screen.SignUp.route) {
-//            SignUpScreen(
+                onSignUpClick = { navController.navigate(Screen.SignUp.route) }
+            )
+        }
+        composable(route = Screen.SignUp.route) {
+            SignUpScreen(
 //                onSignUpSuccess = { navController.navigate(Screen.Home.route) },
-//                onLoginClick = { navController.navigate(Screen.Login.route) }
-//            )
-//        }
+                onLoginClick = { navController.navigate(Screen.Login.route) }
+            )
+        }
         composable(route = Screen.Home.route) {
             HomeScreen(navController = navController)
         }

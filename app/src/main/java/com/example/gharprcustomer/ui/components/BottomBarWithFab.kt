@@ -7,6 +7,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -16,7 +17,6 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.gharprcustomer.R
 import com.example.gharprcustomer.navigation.Screen
-import com.example.gharprcustomer.ui.screens.BottomMenuItem
 import com.example.gharprcustomer.ui.theme.Orange
 import com.example.gharprcustomer.viewmodel.CartScreenViewModel
 
@@ -164,3 +164,8 @@ private fun CartFab(
         }
     }
 }
+
+data class BottomMenuItem(
+    val label: String,
+    val icon: Painter
+)

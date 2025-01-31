@@ -5,7 +5,7 @@ import com.example.gharprcustomer.data.model.CustomerModel
 class CustomerRepository {
     suspend fun getCustomer(): CustomerModel {
         return CustomerModel(
-            customerId = 1,
+            firebaseUid = "001",
             fullName = "John Doe",
             email = "johndoe@example.com",
             phoneNumber = "+1234567890",
@@ -14,8 +14,6 @@ class CustomerRepository {
             country = "Sample Country",
             latitude = 40.7128,
             longitude = -74.0060,
-            createdAt = "2024-01-01T00:00:00Z",
-            updatedAt = "2024-01-01T00:00:00Z"
         )
     }
 }

@@ -22,6 +22,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -100,14 +101,32 @@ fun SettingsScreen(navController: NavController) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(MaterialTheme.colorScheme.surface)
-                    .padding(16.dp)
+                    .padding(top = 16.dp, bottom = 8.dp)
+                    .padding(horizontal = 16.dp),
+                contentAlignment = Alignment.CenterStart
             ) {
-                Text(
-                    text = "Settings",
-                    style = MaterialTheme.typography.headlineMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    fontWeight = FontWeight.Bold
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = "Settings",
+                        style = MaterialTheme.typography.headlineMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontWeight = FontWeight.Bold
+                    )
+
+                    Row {
+                        IconButton(onClick = { /* Help or Info */ }) {
+                            Icon(
+                                imageVector = Icons.Default.Help,
+                                contentDescription = "Help",
+                                tint = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                    }
+                }
             }
 
             // Settings Items
@@ -157,7 +176,7 @@ fun SettingsListItem(
                 width = 1.dp,
                 color = when {
                     isLogout -> MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.3f)
-                    else -> MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
+                    else -> Color.Black.copy(alpha = 0.08f)
                 },
                 shape = MaterialTheme.shapes.medium
             )
@@ -183,7 +202,7 @@ fun SettingsListItem(
                         width = 1.5.dp,
                         color = when {
                             isLogout -> MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.3f)
-                            else -> MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
+                            else -> Color.Black.copy(alpha = 0.08f)
                         },
                         shape = MaterialTheme.shapes.medium
                     ),

@@ -2,12 +2,21 @@ package com.example.gharprcustomer.ui.screens
 
 import android.annotation.SuppressLint
 import android.util.Log
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,12 +34,16 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.TabRowDefaults.Divider
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Remove
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -71,8 +84,12 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import com.example.gharprcustomer.ui.components.EmptyState
@@ -121,7 +138,6 @@ fun CartScreen(navController: NavController) {
             modifier = Modifier
                 .padding(paddingValues)
                 .background(White1)
-                .padding(horizontal = 16.dp)
                 .fillMaxSize()
         ) {
             if (cartItems.isEmpty()) {
@@ -131,7 +147,7 @@ fun CartScreen(navController: NavController) {
                     message = "Looks like you haven't added any items yet"
                 )
             } else {
-                Box(modifier = Modifier.weight(1f)) {
+                Box(modifier = Modifier.weight(1f).padding(horizontal = 16.dp)) {
                     CartList(
                         cartItems = cartItems,
                         onItemQuantityUpdated = { itemId, newQuantity ->
@@ -206,238 +222,427 @@ fun CartItem(
     onQuantityUpdated: (Int) -> Unit,
     onRemoveItem: () -> Unit
 ) {
-    ConstraintLayout(
+    Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 8.dp, bottom = 8.dp)
+            .padding(vertical = 8.dp)
+            .clip(MaterialTheme.shapes.medium)
+            .background(MaterialTheme.colorScheme.surface)
+            .border(
+                width = 1.dp,
+                color = Color.Black.copy(alpha = 0.08f),
+                shape = MaterialTheme.shapes.medium
+            )
+            .padding(16.dp)
     ) {
-        val (image, name, price, totalEachItem, quantity, remove) = createRefs()
-
-        Box(
-            modifier = Modifier
-                .size(90.dp)
-                .background(Grey, shape = RoundedCornerShape(10.dp))
-                .constrainAs(image) {
-                    start.linkTo(parent.start)
-                    top.linkTo(parent.top)
-                    bottom.linkTo(parent.bottom)
-                }
-        ) {
-            AsyncImage(
-                model = item.imageUrl,
-                contentDescription = null,
-                error = painterResource(id = R.drawable.deal_1_temp),
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(8.dp)
-            )
-        }
-
-
-        Text(
-            text = item.name,
-            modifier = Modifier
-                .constrainAs(name) {
-                    start.linkTo(image.end)
-                    top.linkTo(image.top)
-                }
-                .padding(start = 8.dp)
-        )
-
-        Text(
-            text = String.format("$%.2f", item.price),
-            color = Orange,
-            modifier = Modifier
-                .constrainAs(price) {
-                    start.linkTo(name.start)
-                    top.linkTo(name.bottom)
-                }
-                .padding(start = 8.dp)
-        )
-
-        Image(
-            painter = painterResource(id = R.drawable.remove_icon),
-            contentDescription = null,
-            modifier = Modifier
-                .constrainAs(remove) {
-                    end.linkTo(parent.end)
-                    top.linkTo(parent.top)
-                }
-                .clickable {
-                    onRemoveItem()
-                }
-                .padding(4.dp)
-        )
-
-        Text(
-            text = "$${"%.2f".format(item.quantity * item.price)}",
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier
-                .constrainAs(totalEachItem) {
-                    start.linkTo(name.start)
-                    bottom.linkTo(image.bottom)
-
-                }
-                .padding(start = 8.dp)
-        )
-
         ConstraintLayout(
-            modifier = Modifier
-                .width(100.dp)
-                .constrainAs(quantity) {
-                    end.linkTo(parent.end)
-                    bottom.linkTo(parent.bottom)
-                }
-                .background(Grey, shape = RoundedCornerShape(10.dp))
+            modifier = Modifier.fillMaxWidth()
         ) {
-            val (minus, number, plus) = createRefs()
+            val (image, name, price, totalEachItem, quantity, remove) = createRefs()
 
-            Text(
-                text = item.quantity.toString(),
-                color = Color.Black,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.constrainAs(number) {
-                    top.linkTo(parent.top)
-                    bottom.linkTo(parent.bottom)
-                    start.linkTo(parent.start)
-                    end.linkTo(parent.end)
-                }
-            )
-
+            // Image with gradient-like border
             Box(
                 modifier = Modifier
-                    .padding(2.dp)
-                    .size(28.dp)
-                    .background(Orange, shape = RoundedCornerShape(10.dp))
-                    .constrainAs(plus) {
-                        end.linkTo(parent.end)
-                        top.linkTo(parent.top)
-                        bottom.linkTo(parent.bottom)
-                    }
-                    .clickable {
-                        onQuantityUpdated(item.quantity + 1)
-                    }
-            ) {
-                Text(
-                    text = "+",
-                    color = Color.White,
-                    modifier = Modifier.align(Alignment.Center)
-                )
-            }
-
-            Box(
-                modifier = Modifier
-                    .padding(2.dp)
-                    .size(28.dp)
-                    .background(Orange, shape = RoundedCornerShape(10.dp))
-                    .constrainAs(minus) {
+                    .size(90.dp)
+                    .clip(MaterialTheme.shapes.medium)
+                    .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.5f))
+                    .border(
+                        width = 1.5.dp,
+                        color = Color.Black.copy(alpha = 0.08f),
+                        shape = MaterialTheme.shapes.medium
+                    )
+                    .constrainAs(image) {
                         start.linkTo(parent.start)
                         top.linkTo(parent.top)
                         bottom.linkTo(parent.bottom)
                     }
-                    .clickable {
-                        onQuantityUpdated(item.quantity - 1)
-                    }
             ) {
-                Text(
-                    text = "-",
-                    color = Color.White,
-                    modifier = Modifier.align(Alignment.Center)
+                AsyncImage(
+                    model = item.imageUrl,
+                    contentDescription = null,
+                    error = painterResource(id = R.drawable.deal_1_temp),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(8.dp)
                 )
+            }
+
+
+            Text(
+                text = item.name,
+                modifier = Modifier
+                    .constrainAs(name) {
+                        start.linkTo(image.end)
+                        top.linkTo(image.top)
+                    }
+                    .padding(start = 8.dp)
+            )
+
+            Text(
+                text = String.format("$%.2f", item.price),
+                color = Orange,
+                modifier = Modifier
+                    .constrainAs(price) {
+                        start.linkTo(name.start)
+                        top.linkTo(name.bottom)
+                    }
+                    .padding(start = 8.dp)
+            )
+
+            IconButton(
+                onClick = onRemoveItem,
+                modifier = Modifier
+                    .constrainAs(remove) {
+                        end.linkTo(parent.end)
+                        top.linkTo(parent.top)
+                    }
+                    .clickable { onRemoveItem() }
+                    .padding(4.dp)
+                    .size(24.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Delete,
+                    contentDescription = "Remove Item",
+                    tint = Color.Red,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+
+            Text(
+                text = "$${"%.2f".format(item.quantity * item.price)}",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
+                    .constrainAs(totalEachItem) {
+                        start.linkTo(name.start)
+                        bottom.linkTo(image.bottom)
+
+                    }
+                    .padding(start = 8.dp)
+            )
+
+            ConstraintLayout(
+                modifier = Modifier
+                    .width(100.dp)
+                    .constrainAs(quantity) {
+                        end.linkTo(parent.end)
+                        bottom.linkTo(parent.bottom)
+                    }
+                    .background(Grey, shape = RoundedCornerShape(100.dp))
+            ) {
+                val (minus, number, plus) = createRefs()
+
+                Text(
+                    text = item.quantity.toString(),
+                    color = Color.Black,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.constrainAs(number) {
+                        top.linkTo(parent.top)
+                        bottom.linkTo(parent.bottom)
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                    }
+                )
+
+                Box(
+                    modifier = Modifier
+                        .padding(2.dp)
+                        .size(28.dp)
+                        .clip(CircleShape)
+                        .background(Orange, shape = CircleShape)
+                        .constrainAs(plus) {
+                            end.linkTo(parent.end)
+                            top.linkTo(parent.top)
+                            bottom.linkTo(parent.bottom)
+                        }
+                        .clickable {
+                            onQuantityUpdated(item.quantity + 1)
+                        }
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Add,
+                        contentDescription = "Increase Quantity",
+                        tint = Color.White,
+                        modifier = Modifier
+                            .size(20.dp)
+                            .align(Alignment.Center)
+                    )
+                }
+
+                Box(
+                    modifier = Modifier
+                        .padding(2.dp)
+                        .size(28.dp)
+                        .clip(CircleShape)
+                        .background(Orange, shape = CircleShape)
+                        .constrainAs(minus) {
+                            start.linkTo(parent.start)
+                            top.linkTo(parent.top)
+                            bottom.linkTo(parent.bottom)
+                        }
+                        .clickable {
+                            onQuantityUpdated(item.quantity - 1)
+                        }
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Remove,
+                        contentDescription = "Decrease Quantity",
+                        tint = Color.White,
+                        modifier = Modifier
+                            .size(20.dp)
+                            .align(Alignment.Center)
+                    )
+                }
             }
         }
     }
 }
 
+
 @Composable
 fun CartSummary(totalItems: Int, totalPrice: Double) {
+    var isExpanded by remember { mutableStateOf(true) }
     val delivery = 100
     val total = totalPrice + delivery
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .shadow(
+                elevation = 16.dp,
+                shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
+            )
+            .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
+            .background(Color.White)
             .padding(16.dp)
     ) {
+        // Summary Header with Expand/Collapse Toggle
         Row(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = "Total Items:",
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.weight(1f),
-                color = Color.Black
+                text = "Order Summary",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
             )
-            Text(text = "$totalItems")
+
+            // Isolated clickable icon with controlled ripple
+            Box(
+                modifier = Modifier
+                    .size(24.dp)
+                    .clip(CircleShape)
+                    .clickable { isExpanded = !isExpanded },
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = if (isExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                    contentDescription = if (isExpanded) "Collapse" else "Expand",
+                    modifier = Modifier.size(24.dp)
+                )
+            }
         }
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-        ) {
-            Text(
-                text = "Item Total:",
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.weight(1f),
-                color = Color.Black
-            )
-            Text(text = "$%.2f".format(totalPrice))
-        }
+        // Animated content for summary details
+        AnimatedVisibility(visible = isExpanded) {
+            Column {
+                Spacer(modifier = Modifier.height(16.dp))
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-        ) {
-            Text(
-                text = "Delivery:",
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.weight(1f),
-                color = Color.Black
-            )
-            Text(text = "$$delivery")
-        }
+                // Summary Items
+                SummaryRow(
+                    label = "Total Items",
+                    value = totalItems.toString()
+                )
 
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(1.dp)
-                .background(Color.Black)
-                .padding(vertical = 16.dp)
-        )
+                Spacer(modifier = Modifier.height(8.dp))
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-        ) {
-            Text(
-                text = "Total",
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.weight(1f),
-                color = Color.Black
-            )
-            Text(text = "$%.2f".format(total))
-        }
+                SummaryRow(
+                    label = "Item Total",
+                    value = "$%.2f".format(totalPrice)
+                )
 
-        Button(
-            onClick = {},
-            shape = RoundedCornerShape(100.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Orange),
-            modifier = Modifier
-                .padding(top = 16.dp)
-                .fillMaxWidth()
-                .height(50.dp)
-        ) {
-            Text(
-                text = "Check Out",
-                fontSize = 22.sp,
-                color = Color.White
-            )
+                SummaryRow(
+                    label = "Delivery",
+                    value = "$$delivery"
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Divider(
+                    color = Color.Black.copy(alpha = 0.1f),
+                    thickness = 1.dp,
+                    modifier = Modifier.padding(vertical = 8.dp)
+                )
+
+                SummaryRow(
+                    label = "Total",
+                    value = "$%.2f".format(total),
+                    isBold = true
+                )
+
+                // Checkout Button
+                Button(
+                    onClick = { /* TODO: Implement checkout logic */ },
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Orange,
+                        contentColor = Color.White,
+                        disabledContainerColor = Color.Gray.copy(alpha = 0.5f),
+                        disabledContentColor = Color.White.copy(alpha = 0.7f)
+                    ),
+                    elevation = ButtonDefaults.buttonElevation(
+                        defaultElevation = 4.dp,
+                        pressedElevation = 1.dp,
+                        disabledElevation = 0.dp
+                    ),
+                    interactionSource = remember { MutableInteractionSource() },
+                    modifier = Modifier
+                        .padding(top = 16.dp)
+                        .fillMaxWidth()
+                        .height(56.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.ShoppingCart,
+                            contentDescription = "Checkout",
+                            modifier = Modifier
+                                .size(24.dp)
+                                .padding(end = 8.dp)
+                        )
+                        Text(
+                            text = "Proceed to Checkout",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+            }
         }
     }
 }
+
+@Composable
+private fun SummaryRow(
+    label: String,
+    value: String,
+    isBold: Boolean = false
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = label,
+            color = Color.Black,
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = if (isBold) FontWeight.Bold else FontWeight.Normal
+        )
+        Text(
+            text = value,
+            color = Color.Black,
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = if (isBold) FontWeight.Bold else FontWeight.Normal
+        )
+    }
+}
+
+//@Composable
+//fun CartSummary(totalItems: Int, totalPrice: Double) {
+//    val delivery = 100
+//    val total = totalPrice + delivery
+//
+//    Column(
+//        modifier = Modifier
+//            .fillMaxWidth()
+//            .padding(16.dp)
+//    ) {
+//        Row(
+//            modifier = Modifier
+//                .fillMaxWidth()
+//                .padding(16.dp)
+//        ) {
+//            Text(
+//                text = "Total Items:",
+//                fontWeight = FontWeight.Bold,
+//                modifier = Modifier.weight(1f),
+//                color = Color.Black
+//            )
+//            Text(text = "$totalItems")
+//        }
+//
+//        Row(
+//            modifier = Modifier
+//                .fillMaxWidth()
+//                .padding(16.dp)
+//        ) {
+//            Text(
+//                text = "Item Total:",
+//                fontWeight = FontWeight.Bold,
+//                modifier = Modifier.weight(1f),
+//                color = Color.Black
+//            )
+//            Text(text = "$%.2f".format(totalPrice))
+//        }
+//
+//        Row(
+//            modifier = Modifier
+//                .fillMaxWidth()
+//                .padding(16.dp)
+//        ) {
+//            Text(
+//                text = "Delivery:",
+//                fontWeight = FontWeight.Bold,
+//                modifier = Modifier.weight(1f),
+//                color = Color.Black
+//            )
+//            Text(text = "$$delivery")
+//        }
+//
+//        Box(
+//            modifier = Modifier
+//                .fillMaxWidth()
+//                .height(1.dp)
+//                .background(Color.Black)
+//                .padding(vertical = 16.dp)
+//        )
+//
+//        Row(
+//            modifier = Modifier
+//                .fillMaxWidth()
+//                .padding(16.dp)
+//        ) {
+//            Text(
+//                text = "Total",
+//                fontWeight = FontWeight.Bold,
+//                modifier = Modifier.weight(1f),
+//                color = Color.Black
+//            )
+//            Text(text = "$%.2f".format(total))
+//        }
+//
+//        Button(
+//            onClick = {},
+//            shape = RoundedCornerShape(100.dp),
+//            colors = ButtonDefaults.buttonColors(containerColor = Orange),
+//            modifier = Modifier
+//                .padding(top = 16.dp)
+//                .fillMaxWidth()
+//                .height(50.dp)
+//        ) {
+//            Text(
+//                text = "Check Out",
+//                fontSize = 22.sp,
+//                color = Color.White
+//            )
+//        }
+//    }
+//}

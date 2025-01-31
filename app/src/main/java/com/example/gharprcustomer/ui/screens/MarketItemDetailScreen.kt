@@ -2,9 +2,11 @@ package com.example.gharprcustomer.ui.screens
 
 import android.widget.Toast
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -68,6 +70,9 @@ fun MarketItemDetailScreen(
     // State to track favorite status
     var isFavorite by remember { mutableStateOf(marketItem?.isFavorite ?: false) }
 
+    // Timings bottom sheet state
+    val sheetState = rememberModalBottomSheetState()
+    var isTimingsSheetVisible by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -179,9 +184,43 @@ fun MarketItemDetailScreen(
                                     style = MaterialTheme.typography.bodyMedium
                                 )
                             }
+                            Spacer(modifier = Modifier.height(8.dp))
+
                         }
                     }
                 }
+            }
+
+            item {
+                ListItem(
+                    modifier = Modifier.clickable { isTimingsSheetVisible = true },
+                    headlineContent = {
+                        Text(
+                            text = "Shop Timings",
+                            fontWeight = FontWeight.Bold,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    },
+                    supportingContent = {
+                        Text(
+                            text = "Open Now • Closes 9:00 PM",
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    },
+                    leadingContent = {
+                        Icon(
+                            imageVector = Icons.Default.AccessTime,
+                            contentDescription = "Shop Timings",
+                            tint = Orange
+                        )
+                    },
+                    trailingContent = {
+                        Icon(
+                            imageVector = Icons.Default.ChevronRight,
+                            contentDescription = "View Timings"
+                        )
+                    }
+                )
             }
 
             // Tabs
@@ -280,7 +319,9 @@ fun MarketItemDetailScreen(
                 items(deals) { deal ->
                     DealItemCard(
                         deal = deal,
-                        modifier = Modifier,
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp)
+                            .padding(top = 16.dp),
                         onClick = {
                             navController.navigate("deal_detail/${deal.dealId}")
                         }
@@ -292,7 +333,168 @@ fun MarketItemDetailScreen(
                 }
             }
         }
+
+//         Bottom Sheet for Shop Timings
+        if (isTimingsSheetVisible) {
+            ModalBottomSheet(
+                onDismissRequest = { isTimingsSheetVisible = false },
+                sheetState = sheetState,
+                containerColor = MaterialTheme.colorScheme.surface,
+                contentColor = MaterialTheme.colorScheme.onSurface,
+                dragHandle = { BottomSheetDefaults.DragHandle() }
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                        .padding(bottom = 32.dp)
+                ) {
+                    // Enhanced Header
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(40.dp)
+                                .background(
+                                    color = Orange.copy(alpha = 0.1f),
+                                    shape = CircleShape
+                                ),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.AccessTime,
+                                contentDescription = "Shop Timings",
+                                tint = Orange,
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Column {
+                            Text(
+                                text = "Shop Hours",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                text = "Operating hours for the week",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+
+                    // Days of the week with timings
+                    val weekDays = listOf(
+                        "Monday" to "9:00 AM - 9:00 PM",
+                        "Tuesday" to "9:00 AM - 9:00 PM",
+                        "Wednesday" to "9:00 AM - 9:00 PM",
+                        "Thursday" to "9:00 AM - 9:00 PM",
+                        "Friday" to "9:00 AM - 10:00 PM",
+                        "Saturday" to "10:00 AM - 10:00 PM",
+                        "Sunday" to "10:00 AM - 8:00 PM"
+                    )
+
+                    weekDays.forEachIndexed { index, (day, timing) ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(
+                                    color = if (isCurrentDay(index))
+                                        MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f)
+                                    else Color.Transparent,
+                                    shape = RoundedCornerShape(12.dp)
+                                )
+                                .border(
+                                    width = if (isCurrentDay(index)) 1.dp else 0.dp,
+                                    color = if (isCurrentDay(index))
+                                        MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
+                                    else Color.Transparent,
+                                    shape = RoundedCornerShape(12.dp)
+                                )
+                                .padding(vertical = 12.dp, horizontal = 12.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                // Day indicator
+                                Box(
+                                    modifier = Modifier
+                                        .size(8.dp)
+                                        .background(
+                                            color = if (isCurrentDay(index))
+                                                MaterialTheme.colorScheme.primary
+                                            else MaterialTheme.colorScheme.onSurfaceVariant.copy(
+                                                alpha = 0.3f
+                                            ),
+                                            shape = CircleShape
+                                        )
+                                        .padding(end = 8.dp)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = day,
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    fontWeight = if (isCurrentDay(index)) FontWeight.Bold else FontWeight.Normal,
+                                    color = if (isCurrentDay(index))
+                                        MaterialTheme.colorScheme.primary
+                                    else MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+                            Text(
+                                text = timing,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = if (isCurrentDay(index))
+                                    MaterialTheme.colorScheme.primary
+                                else MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        if (index < weekDays.size - 1) {
+                            Divider(
+                                modifier = Modifier.padding(vertical = 4.dp),
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f)
+                            )
+                        }
+                    }
+
+                    // Additional Information
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(
+                                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
+                                shape = RoundedCornerShape(12.dp)
+                            )
+                            .padding(12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Info,
+                            contentDescription = "Info",
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Text(
+                            text = "Hours may vary on public holidays",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            }
+        }
     }
+}
+
+// Helper function to check current day
+private fun isCurrentDay(dayIndex: Int): Boolean {
+    val currentDayIndex = java.time.LocalDate.now().dayOfWeek.value - 1
+    return dayIndex == currentDayIndex
 }
 
 @Composable

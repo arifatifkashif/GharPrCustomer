@@ -21,7 +21,7 @@ import com.example.gharprcustomer.data.model.MarketItemModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MarketItem(
+fun MarketItemCard(
     marketItem: MarketItemModel,
     modifier: Modifier = Modifier,
     onClick: () -> Unit = {}
@@ -29,7 +29,6 @@ fun MarketItem(
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
             .shadow(
                 elevation = 8.dp,
                 shape = RoundedCornerShape(24.dp),

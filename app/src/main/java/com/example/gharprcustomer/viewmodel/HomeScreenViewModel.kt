@@ -169,5 +169,9 @@ data class HomeScreenState(
     val isLoadingMenuItems: Boolean = false,
     val isLoadingMarketItems: Boolean = false,
     val isLoadingDeals: Boolean = false,
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
+
+
+// ... existing properties
+val location: String? = null  // Add this
 )

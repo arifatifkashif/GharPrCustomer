@@ -31,8 +31,10 @@ import com.example.gharprcustomer.navigation.Screen
 import com.example.gharprcustomer.ui.components.BottomBarWithFab
 import com.example.gharprcustomer.viewmodel.OrdersScreenViewModel
 import androidx.compose.material.icons.outlined.FilterList
+import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.BlendModeColorFilter
 import androidx.compose.ui.graphics.Color
 
 @Composable
@@ -50,6 +52,47 @@ fun OrdersScreen(
                 .background(MaterialTheme.colorScheme.background)
                 .padding(paddingValues)
         ) {
+            // Orders Header
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.surface)
+                    .padding(top = 16.dp)
+                    .padding(horizontal = 16.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = "Orders",
+                        style = MaterialTheme.typography.headlineMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontWeight = FontWeight.Bold
+                    )
+
+                    Row {
+                        // Search Icon
+                        IconButton(onClick = { /* Open order search */ }) {
+                            Icon(
+                                imageVector = Icons.Outlined.Search,
+                                contentDescription = "Search Orders",
+                                tint = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+
+                        // More Options Icon
+                        IconButton(onClick = { /* Show dropdown or bottom sheet with more options */ }) {
+                            Icon(
+                                imageVector = Icons.Outlined.MoreVert,
+                                contentDescription = "More Options",
+                                tint = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                    }
+                }
+            }
             // Tabs for Orders
             OrdersTabLayout(viewModel)
         }
@@ -98,7 +141,10 @@ fun OrdersTabLayout(viewModel: OrdersScreenViewModel) {
 
     Column {
         // Tab Row
-        TabRow(selectedTabIndex = selectedTabIndex) {
+        TabRow(
+            selectedTabIndex = selectedTabIndex,
+            modifier = Modifier.padding(horizontal = 16.dp)
+        ) {
             Tab(
                 selected = selectedTabIndex == 0,
                 onClick = {
@@ -123,7 +169,8 @@ fun OrdersTabLayout(viewModel: OrdersScreenViewModel) {
                 statuses = currentOrderStatuses,
                 selectedStatus = selectedCurrentStatus,
                 onStatusSelected = { status ->
-                    selectedCurrentStatus = if (selectedCurrentStatus == status) null else status
+                    selectedCurrentStatus =
+                        if (selectedCurrentStatus == status) null else status
                 }
             )
         } else {
@@ -148,6 +195,7 @@ fun OrdersTabLayout(viewModel: OrdersScreenViewModel) {
                     MarketOrdersList(currentOrders)
                 }
             }
+
             1 -> {
                 if (pastOrders.isEmpty()) {
                     EmptyOrdersState(
@@ -404,7 +452,12 @@ fun MarketOrderCard(marketOrder: OrderMarketModel) {
                             overflow = TextOverflow.Ellipsis
                         )
                         Text(
-                            text = "Qty: ${orderItem.quantity} | ₹${String.format("%.2f", orderItem.price)}",
+                            text = "Qty: ${orderItem.quantity} | ₹${
+                                String.format(
+                                    "%.2f",
+                                    orderItem.price
+                                )
+                            }",
                             style = MaterialTheme.typography.bodyMedium.copy(
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -454,26 +507,32 @@ fun OrderStatusChip(status: OrderStatus) {
             Color(0xFFFFE0B2),  // Light Orange
             Color(0xFFEF6C00)   // Dark Orange
         )
+
         OrderStatus.IN_PROGRESS -> Pair(
             Color(0xFFB3E5FC),  // Light Blue
             Color(0xFF0277BD)   // Dark Blue
         )
+
         OrderStatus.READY_FOR_PICKUP -> Pair(
             Color(0xFFC8E6C9),  // Light Green
             Color(0xFF2E7D32)   // Dark Green
         )
+
         OrderStatus.PICKED_UP -> Pair(
             Color(0xFFD1C4E9),  // Light Purple
             Color(0xFF4527A0)   // Dark Purple
         )
+
         OrderStatus.COMPLETED -> Pair(
             Color(0xFFA5D6A7),  // Bright Green
             Color(0xFF2E7D32)   // Dark Green
         )
+
         OrderStatus.CANCELLED -> Pair(
             Color(0xFFFFCDD2),  // Light Red
             Color(0xFFD32F2F)   // Dark Red
         )
+
         OrderStatus.FAILED -> Pair(
             Color(0xFFFFCDD2),  // Light Red
             Color(0xFFD32F2F)   // Dark Red
