@@ -1,4 +1,4 @@
-package com.example.gharprcustomer.ui.components
+package com.example.gharprcustomer.ui.components.navigation
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -7,16 +7,16 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.gharprcustomer.R
 import com.example.gharprcustomer.navigation.Screen
+import com.example.gharprcustomer.ui.components.foundation.AppIcons
 import com.example.gharprcustomer.ui.theme.Orange
 import com.example.gharprcustomer.viewmodel.CartScreenViewModel
 
@@ -37,10 +37,10 @@ fun BottomBarWithFab(
     }
 
     val bottomMenuItemsList = listOf(
-        BottomMenuItem("Home", painterResource(id = R.drawable.home_icon)),
-        BottomMenuItem("Stores", painterResource(id = R.drawable.restaurant_icon)),
-        BottomMenuItem("Orders", painterResource(id = R.drawable.orders_icon)),
-        BottomMenuItem("Settings", painterResource(id = R.drawable.settings_icon))
+        BottomMenuItem("Home", AppIcons.BottomBar.Home.outlined),
+        BottomMenuItem("Stores", AppIcons.BottomBar.Stores.outlined),
+        BottomMenuItem("Orders", AppIcons.BottomBar.Orders.outlined),
+        BottomMenuItem("Settings", AppIcons.BottomBar.Settings.outlined)
     )
 
     val scaffoldState = rememberScaffoldState()
@@ -83,7 +83,7 @@ fun BottomBarWithFab(
                         },
                         icon = {
                             Icon(
-                                painter = bottomMenuItem.icon,
+                                imageVector = bottomMenuItem.icon,
                                 contentDescription = bottomMenuItem.label,
                                 modifier = Modifier
                                     .height(25.dp)
@@ -129,7 +129,7 @@ private fun CartFab(
             )
         ) {
             Icon(
-                painter = painterResource(id = R.drawable.cart_icon),
+                imageVector = AppIcons.BottomBar.Cart.outlined,
                 contentDescription = "Cart",
                 modifier = Modifier
                     .height(30.dp)
@@ -167,5 +167,5 @@ private fun CartFab(
 
 data class BottomMenuItem(
     val label: String,
-    val icon: Painter
+    val icon: ImageVector
 )

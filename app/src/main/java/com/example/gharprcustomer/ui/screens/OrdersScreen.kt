@@ -28,13 +28,10 @@ import coil.compose.AsyncImage
 import com.example.gharprcustomer.data.model.OrderMarketModel
 import com.example.gharprcustomer.data.model.OrderStatus
 import com.example.gharprcustomer.navigation.Screen
-import com.example.gharprcustomer.ui.components.BottomBarWithFab
+import com.example.gharprcustomer.ui.components.navigation.BottomBarWithFab
 import com.example.gharprcustomer.viewmodel.OrdersScreenViewModel
-import androidx.compose.material.icons.outlined.FilterList
 import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material.icons.outlined.Search
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.BlendModeColorFilter
 import androidx.compose.ui.graphics.Color
 
 @Composable

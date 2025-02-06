@@ -1,4 +1,4 @@
-package com.example.gharprcustomer.ui.components
+package com.example.gharprcustomer.ui.components.navigation
 
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons

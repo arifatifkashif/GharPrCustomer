@@ -21,12 +21,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.gharprcustomer.navigation.Screen
-import com.example.gharprcustomer.ui.components.BottomBarWithFab
-import com.example.gharprcustomer.ui.components.MarketItemCard
+import com.example.gharprcustomer.ui.components.navigation.BottomBarWithFab
+import com.example.gharprcustomer.ui.components.cards.MarketItemCard
+import com.example.gharprcustomer.ui.components.navigation.AppSearchBar
 import com.example.gharprcustomer.ui.theme.Grey
 import com.example.gharprcustomer.ui.theme.Orange
 import com.example.gharprcustomer.viewmodel.MarketScreenViewModel
@@ -97,68 +97,13 @@ fun MarketScreen(
 
             // Animated Search Bar
             AnimatedVisibility(visible = isSearchVisible) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp, horizontal = 16.dp)
-                        .height(56.dp)
-                        .shadow(
-                            elevation = 4.dp,
-                            shape = RoundedCornerShape(16.dp),
-                            spotColor = Orange.copy(alpha = 0.1f)
-                        )
-                        .clip(RoundedCornerShape(16.dp))
-                        .background(Grey)
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(horizontal = 16.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Search,
-                            contentDescription = "Search",
-                            tint = Orange,
-                            modifier = Modifier.size(24.dp)
-                        )
 
-                        TextField(
-                            value = uiState.searchQuery,
-                            onValueChange = { viewModel.onSearchQueryChange(it) },
-                            modifier = Modifier
-                                .weight(1f)
-                                .fillMaxHeight(),
-                            placeholder = {
-                                Text(
-                                    "Search markets...",
-                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                                )
-                            },
-                            singleLine = true,
-                            colors = TextFieldDefaults.colors(
-                                focusedContainerColor = Color.Transparent,
-                                unfocusedContainerColor = Color.Transparent,
-                                disabledContainerColor = Color.Transparent,
-                                focusedIndicatorColor = Color.Transparent,
-                                unfocusedIndicatorColor = Color.Transparent,
-                                cursorColor = Orange
-                            )
-                        )
-
-                        if (uiState.searchQuery.isNotEmpty()) {
-                            IconButton(
-                                onClick = { viewModel.onSearchQueryChange("") }
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Close,
-                                    contentDescription = "Clear search",
-                                    tint = Orange
-                                )
-                            }
-                        }
-                    }
-                }
+                AppSearchBar(
+                    value = uiState.searchQuery,
+                    onValueChange = { viewModel.onSearchQueryChange(it) },
+                    placeholder = "Search markets...",
+                    onClearClick = { viewModel.onSearchQueryChange("") },
+                )
             }
 
             // Market List

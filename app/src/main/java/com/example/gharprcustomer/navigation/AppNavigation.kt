@@ -81,7 +81,7 @@ fun AppNavigation(modifier: Modifier, navController: NavHostController) {
         }
         composable(route = Screen.Login.route) {
             LoginScreen(
-//                onLoginSuccess = { navController.navigate(Screen.Home.route) },
+                onLoginSuccess = { navController.navigate(Screen.Home.route) },
                 onSignUpClick = { navController.navigate(Screen.SignUp.route) }
             )
         }

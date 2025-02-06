@@ -1,8 +1,5 @@
 package com.example.gharprcustomer.ui.screens.auth
 
-import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -10,9 +7,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Login
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -30,6 +24,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.gharprcustomer.R
+import com.example.gharprcustomer.ui.components.layout.AppSpacers
+import com.example.gharprcustomer.ui.components.navigation.ContinueWith
 import com.example.gharprcustomer.ui.theme.*
 
 @Composable
@@ -133,22 +129,21 @@ fun AuthOptionScreen(
                     .clip(RoundedCornerShape(16.dp))
             )
 
-            Spacer(modifier = Modifier.height(32.dp))
+            AppSpacers.Vertical(AppSpacers.Sizes.ExtraLarge)
 
             // Welcome Text
             Text(
                 text = "Hello, Welcome",
-                color = LightBlack,
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.titleLarge,
+                color = AppColors.OnSurface,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(bottom = 16.dp)
             )
 
             Text(
                 text = "Your favorite meals are just a few taps away, ready to be delivered fresh and fast to your doorstep",
-                color = Grey1,
-                fontSize = 15.sp,
+                style = MaterialTheme.typography.bodyLarge,
+                color = AppColors.Grey,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(bottom = 32.dp)
             )
@@ -157,60 +152,25 @@ fun AuthOptionScreen(
             AuthButton(
                 onClick = onLoginClick,
                 text = "Login",
-                icon = Icons.Default.Login,
                 containerColor = Orange,
                 contentColor = White1,
                 modifier = Modifier.fillMaxWidth()
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            AppSpacers.Vertical()
 
             // Sign Up Button
             AuthButton(
                 onClick = onSignUpClick,
-                text = "Sign Up",
-                icon = Icons.Default.Person,
+                text = "Register",
                 containerColor = White1,
                 contentColor = Orange,
                 outlined = true,
                 modifier = Modifier.fillMaxWidth()
             )
 
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // Divider Text
-            Text(
-                text = "Or continue with",
-                color = Grey1,
-                fontSize = 15.sp,
-                textAlign = TextAlign.Center
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
             // Social Login Buttons
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                // Google Button
-                AuthButton(
-                    onClick = onGoogleClick,
-                    text = "Google",
-                    socialIcon = R.drawable.google_icon,
-                    modifier = Modifier.weight(1f),
-                    outlined = true
-                )
-
-                // Facebook Button
-                AuthButton(
-                    onClick = onFacebookClick,
-                    text = "Facebook",
-                    socialIcon = R.drawable.facebook_icon,
-                    modifier = Modifier.weight(1f),
-                    outlined = true
-                )
-            }
+            ContinueWith()
         }
     }
 }

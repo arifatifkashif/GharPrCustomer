@@ -1,20 +1,90 @@
 package com.example.gharprcustomer.data.model
 
+import com.google.firebase.firestore.PropertyName
+
 data class CustomerModel(
-    val firebaseUid: String,     // Replace customerId with Firebase UID
-    val fullName: String,             // Full name of the customer
-    val email: String,                // Customer's email (unique)
-    val phoneNumber: String? = null,  // Optional phone number
-    val address: String? = null,      // Optional address
-    val city: String? = null,         // City of the customer
-    val country: String? = null,      // Country of the customer
-    val latitude: Double? = null,     // Latitude of the customer (nullable)
-    val longitude: Double? = null,    // Longitude of the customer (nullable)
-    val createdAt: Long = System.currentTimeMillis(),  // Use Long timestamp
-    val updatedAt: Long? = null,      // Timestamp when last updated
+    @JvmField
+    @get:JvmName("getFirebaseUid")
+    @PropertyName("firebaseUid")
+    val firebaseUid: String = "",
+
+    @JvmField
+    @get:JvmName("getFullName")
+    @PropertyName("fullName")
+    val fullName: String = "",
+
+    @JvmField
+    @get:JvmName("getEmail")
+    @PropertyName("email")
+    val email: String = "",
+
+    @JvmField
+    @get:JvmName("getPhoneNumber")
+    @PropertyName("phoneNumber")
+    val phoneNumber: String? = null,
+
+    @JvmField
+    @get:JvmName("getAddress")
+    @PropertyName("address")
+    val address: String? = null,
+
+    @JvmField
+    @get:JvmName("getCity")
+    @PropertyName("city")
+    val city: String? = null,
+
+    @JvmField
+    @get:JvmName("getCountry")
+    @PropertyName("country")
+    val country: String? = null,
+
+    @JvmField
+    @get:JvmName("getLatitude")
+    @PropertyName("latitude")
+    val latitude: Double? = null,
+
+    @JvmField
+    @get:JvmName("getLongitude")
+    @PropertyName("longitude")
+    val longitude: Double? = null,
+
+    @JvmField
+    @get:JvmName("getCreatedAt")
+    @PropertyName("createdAt")
+    val createdAt: Long = System.currentTimeMillis(),
+
+    @JvmField
+    @get:JvmName("getUpdatedAt")
+    @PropertyName("updatedAt")
+    val updatedAt: Long? = null,
+
+    @JvmField
+    @get:JvmName("getRegistrationStage")
+    @PropertyName("registrationStage")
     val registrationStage: RegistrationStage = RegistrationStage.EMAIL_SIGNUP,
-    val customerId: Int? = null       // Optional if you still need internal ID
-)
+
+    @JvmField
+    @get:JvmName("getCustomerId")
+    @PropertyName("customerId")
+    val customerId: Int? = null
+) {
+    // No-arg constructor for Firestore
+    constructor() : this(
+        firebaseUid = "",
+        fullName = "",
+        email = "",
+        phoneNumber = null,
+        address = null,
+        city = null,
+        country = null,
+        latitude = null,
+        longitude = null,
+        createdAt = System.currentTimeMillis(),
+        updatedAt = null,
+        registrationStage = RegistrationStage.EMAIL_SIGNUP,
+        customerId = null
+    )
+}
 
 // Registration Stages (Extensible for future steps)
 enum class RegistrationStage {

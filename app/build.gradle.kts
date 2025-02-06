@@ -1,4 +1,4 @@
-import org.jetbrains.kotlin.konan.properties.Properties
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
@@ -27,37 +27,45 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    val localProperties = Properties()
+    val localPropertiesFile = File(rootDir, "secret.properties")
+    if(localPropertiesFile.exists() && localPropertiesFile.isFile){
+        localPropertiesFile.inputStream().use{
+            localProperties.load(it)
+        }
+    }
+
     buildTypes {
 
         debug {
             buildConfigField(
                 "String",
                 "SUPABASE_URL",
-                "\"https://your-project-id.supabase.co\""
+                localProperties.getProperty("SUPABASE_URL", "")
             )
             buildConfigField(
                 "String",
                 "SUPABASE_ANON_KEY",
-                "\"your-anon-key-here\""
+                localProperties.getProperty("SUPABASE_ANON_KEY", "")
             )
         }
 
         release {
-            buildConfigField(
-                "String",
-                "SUPABASE_URL",
-                "\"https://your-project-id.supabase.co\""
-            )
-            buildConfigField(
-                "String",
-                "SUPABASE_ANON_KEY",
-                "\"your-anon-key-here\""
-            )
-
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
+            )
+
+            buildConfigField(
+                "String",
+                "SUPABASE_URL",
+                localProperties.getProperty("SUPABASE_URL", "")
+            )
+            buildConfigField(
+                "String",
+                "SUPABASE_ANON_KEY",
+                localProperties.getProperty("SUPABASE_ANON_KEY", "")
             )
         }
     }
@@ -70,6 +78,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 

@@ -1,5 +1,6 @@
 package com.example.gharprcustomer.data.repository
 
+import android.util.Log
 import com.example.gharprcustomer.data.model.CustomerModel
 import com.example.gharprcustomer.data.model.RegistrationStage
 import com.google.firebase.auth.FirebaseAuth
@@ -55,10 +56,15 @@ class AuthRepository @Inject constructor(
         password: String
     ): Result<CustomerModel> {
         return try {
+
+            Log.d("AuthRepository", "Login Attempt: $email")
+
             // Firebase Authentication
             val authResult = firebaseAuth.signInWithEmailAndPassword(email, password).await()
             val firebaseUser = authResult.user
                 ?: throw Exception("Login failed")
+
+            Log.d("AuthRepository", "Firebase UID: ${firebaseUser.uid}")
 
             // Fetch Customer Model from Firestore
             val customerSnapshot = firestore.collection("customers")
@@ -66,11 +72,15 @@ class AuthRepository @Inject constructor(
                 .get()
                 .await()
 
+            Log.d("AuthRepository", "Snapshot Exists: ${customerSnapshot.exists()}")
+            Log.d("AuthRepository", "Snapshot Data: ${customerSnapshot.data}")
+
             val customerModel = customerSnapshot.toObject(CustomerModel::class.java)
                 ?: throw Exception("Customer profile not found")
 
             Result.success(customerModel)
         } catch (e: Exception) {
+            Log.e("AuthRepository", "Login Error: ${e.message}", e)
             Result.failure(e)
         }
     }

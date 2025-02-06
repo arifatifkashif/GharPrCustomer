@@ -9,7 +9,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
@@ -20,10 +19,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -35,8 +31,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.example.gharprcustomer.R
-import com.example.gharprcustomer.ui.components.ContinueWith
+import com.example.gharprcustomer.ui.components.foundation.AppIcons
+import com.example.gharprcustomer.ui.components.foundation.InlineTextButton
+import com.example.gharprcustomer.ui.components.navigation.ContinueWith
+import com.example.gharprcustomer.ui.components.foundation.LoadingButton
+import com.example.gharprcustomer.ui.components.foundation.PrimaryTextField
+import com.example.gharprcustomer.ui.components.layout.AppSpacers
 import com.example.gharprcustomer.ui.theme.*
 import com.example.gharprcustomer.utils.ValidationUtils
 import com.example.gharprcustomer.viewmodel.AuthState
@@ -47,7 +47,7 @@ import com.example.gharprcustomer.viewmodel.AuthViewModel
 fun LoginScreen(
     modifier: Modifier = Modifier,
     viewModel: AuthViewModel = hiltViewModel(),
-    onLoginClick: () -> Unit = {},
+    onLoginSuccess: () -> Unit = {},
     onSignUpClick: () -> Unit = {},
     onForgotPasswordClick: () -> Unit = {}
 ) {
@@ -66,7 +66,9 @@ fun LoginScreen(
     // Handle authentication state
     LaunchedEffect(authState) {
         when (authState) {
-            is AuthState.LoginSuccess -> onLoginClick()
+            is AuthState.LoginSuccess -> {
+                onLoginSuccess()
+            }
             is AuthState.Error -> {
                 Toast.makeText(
                     context,
@@ -91,8 +93,8 @@ fun LoginScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            // Replaced Image with a placeholder or decorative element if needed
-            Spacer(modifier = Modifier.height(32.dp))
+
+            AppSpacers.Vertical(AppSpacers.Sizes.ExtraLarge)
 
             // Welcome Text with Animation
             AnimatedVisibility(
@@ -121,7 +123,7 @@ fun LoginScreen(
             }
 
             // Email Input with Enhanced Error Handling
-            CustomTextField(
+            PrimaryTextField(
                 value = email,
                 onValueChange = {
                     email = it
@@ -130,16 +132,16 @@ fun LoginScreen(
                     }
                 },
                 placeholder = "Email",
-                leadingIcon = Icons.Default.Email,
+                leadingIcon = AppIcons.Communication.Email.filled,
                 keyboardType = KeyboardType.Email,
                 imeAction = ImeAction.Next,
                 error = emailError
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            AppSpacers.Vertical()
 
             // Password Input with Enhanced Error Handling
-            CustomTextField(
+            PrimaryTextField(
                 value = password,
                 onValueChange = {
                     password = it
@@ -148,7 +150,7 @@ fun LoginScreen(
                     }
                 },
                 placeholder = "Password",
-                leadingIcon = Icons.Default.Lock,
+                leadingIcon = AppIcons.Security.Lock.filled,
                 keyboardType = KeyboardType.Password,
                 visualTransformation = if (passwordVisibility) VisualTransformation.None else PasswordVisualTransformation(),
                 imeAction = ImeAction.Done,
@@ -156,9 +158,9 @@ fun LoginScreen(
                     IconButton(onClick = { passwordVisibility = !passwordVisibility }) {
                         Icon(
                             imageVector = if (passwordVisibility)
-                                Icons.Default.VisibilityOff
+                                AppIcons.Security.VisibilityOff.filled
                             else
-                                Icons.Default.Visibility,
+                                AppIcons.Security.VisibilityOn.filled,
                             contentDescription = if (passwordVisibility) "Hide password" else "Show password"
                         )
                     }
@@ -173,71 +175,40 @@ fun LoginScreen(
                     .padding(top = 8.dp),
                 horizontalArrangement = Arrangement.End
             ) {
-                TextButton(
+                InlineTextButton(
+                    text = "Forgot Password?",
                     onClick = onForgotPasswordClick,
-                    contentPadding = PaddingValues(0.dp)
-                ) {
-                    Text(
-                        text = "Forgot Password?",
-                        color = Orange,
-                        fontSize = 14.sp
-                    )
-                }
+                )
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            AppSpacers.Vertical(AppSpacers.Sizes.Large)
 
-            // Login Button with Improved State Handling
-//            Button(
-//                onClick = {
-//                    loginAttempted = true
-//
-//                    // Use validateLogin to check both email and password
-//                    val loginErrors = ValidationUtils.validateLogin(email, password)
-//
-//                    // Set error messages if validation fails
-//                    emailError = loginErrors["email"]
-//                    passwordError = loginErrors["password"]
-//
-//                    // Only proceed with login if no errors
-//                    if (loginErrors.isEmpty()) {
-//                        viewModel.login(email, password)
-//                    }
-//                },
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .height(56.dp)
-//                    .shadow(
-//                        elevation = 4.dp,
-//                        shape = RoundedCornerShape(12.dp)
-//                    ),
-//                colors = ButtonDefaults.buttonColors(
-//                    containerColor = Orange,
-//                    contentColor = White1
-//                ),
-//                shape = RoundedCornerShape(12.dp),
-//                enabled = authState != AuthState.Loading
-//            ) {
-//                if (authState == AuthState.Loading) {
-//                    CircularProgressIndicator(
-//                        color = White1,
-//                        modifier = Modifier.size(24.dp)
-//                    )
-//                } else {
-//                    Text(
-//                        text = "Login",
-//                        fontSize = 18.sp,
-//                        fontWeight = FontWeight.Bold
-//                    )
-//                }
-//            }
+            LoadingButton(
+                text = "Login",
+                isLoading = authState == AuthState.Loading,
+                onClick = {
+                    loginAttempted = true
 
-            
+                    // Use validateLogin to check both email and password
+                    val loginErrors = ValidationUtils.validateLogin(email, password)
+
+                    // Set error messages if validation fails
+                    emailError = loginErrors["email"]
+                    passwordError = loginErrors["password"]
+
+                    // Only proceed with login if no errors
+                    if (loginErrors.isEmpty()) {
+                        viewModel.login(email, password)
+                    }
+                }
+            )
 
             ContinueWith(
                 onGoogleClick = {},
                 onFacebookClick = {}
             )
+
+            AppSpacers.Vertical()
 
             // Sign Up Navigation
             Row(
@@ -249,73 +220,11 @@ fun LoginScreen(
                     color = Grey1,
                     fontSize = 16.sp
                 )
-                TextButton(
+                InlineTextButton(
+                    text = "Register",
                     onClick = onSignUpClick,
-                    contentPadding = PaddingValues(0.dp)
-                ) {
-                    Text(
-                        text = "Sign Up",
-                        color = Orange,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun LoadingButton(
-    text: String,
-    isLoading: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true
-) {
-    Button(
-        onClick = onClick,
-        modifier = modifier
-            .fillMaxWidth()
-            .height(56.dp)
-            .shadow(
-                elevation = 4.dp,
-                shape = RoundedCornerShape(12.dp)
-            ),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = Orange,
-            contentColor = White1,
-            disabledContainerColor = Orange.copy(alpha = 0.6f),
-            disabledContentColor = White1.copy(alpha = 0.7f)
-        ),
-        shape = RoundedCornerShape(12.dp),
-        enabled = enabled
-    ) {
-        if (isLoading) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
-            ) {
-                CircularProgressIndicator(
-                    color = White1,
-                    modifier = Modifier
-                        .size(24.dp)
-                        .padding(end = 8.dp),
-                    strokeWidth = 2.dp
-                )
-                Text(
-                    text = "Logging in...",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = White1
                 )
             }
-        } else {
-            Text(
-                text = text,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold
-            )
         }
     }
 }

@@ -1,4 +1,4 @@
-package com.example.gharprcustomer.ui.components
+package com.example.gharprcustomer.ui.components.cards
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -15,14 +15,12 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.SubcomposeAsyncImage
 import coil.request.ImageRequest
-import com.example.gharprcustomer.R
 import com.example.gharprcustomer.data.model.MenuItemModel
 import com.example.gharprcustomer.ui.theme.Orange
 import com.example.gharprcustomer.ui.theme.White1

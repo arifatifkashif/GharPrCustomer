@@ -26,12 +26,12 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
-import com.example.gharprcustomer.ui.components.DealItemCard
-import com.example.gharprcustomer.ui.components.MenuItemCard
+import com.example.gharprcustomer.ui.components.cards.DealItemCard
+import com.example.gharprcustomer.ui.components.cards.MenuItemCard
 import com.example.gharprcustomer.ui.theme.*
 import com.example.gharprcustomer.viewmodel.HomeScreenViewModel
 import androidx.compose.ui.graphics.Brush
-import com.example.gharprcustomer.ui.components.ItemDetailTopBar
+import com.example.gharprcustomer.ui.components.navigation.ItemDetailTopBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

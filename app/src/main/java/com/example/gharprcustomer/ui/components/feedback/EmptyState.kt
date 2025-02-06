@@ -1,4 +1,4 @@
-package com.example.gharprcustomer.ui.components
+package com.example.gharprcustomer.ui.components.feedback
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -84,7 +84,7 @@ fun EmptyState(
 }
 
 // Preview functions (optional)
-@Preview
+@Preview(backgroundColor = 0xFFFFFFFF, showBackground = true)
 @Composable
 fun EmptyCartStatePreview() {
     EmptyState(

@@ -1,4 +1,4 @@
-package com.example.gharprcustomer.ui.components
+package com.example.gharprcustomer.ui.components.cards
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

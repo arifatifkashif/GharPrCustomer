@@ -1,4 +1,4 @@
-package com.example.gharprcustomer.ui.screens
+package com.example.gharprcustomer.ui.screens.auth
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -12,7 +12,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -22,7 +21,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.gharprcustomer.R
-import com.example.gharprcustomer.ui.screens.auth.CustomTextField
+import com.example.gharprcustomer.ui.components.foundation.PrimaryTextField
+import com.example.gharprcustomer.ui.components.layout.AppSpacers
 import com.example.gharprcustomer.ui.theme.*
 
 @Preview
@@ -56,7 +56,7 @@ fun ForgotPasswordScreen(
                     .clip(RoundedCornerShape(16.dp))
             )
 
-            Spacer(modifier = Modifier.height(32.dp))
+            AppSpacers.Vertical(AppSpacers.Sizes.ExtraLarge)
 
             // Title
             Text(
@@ -78,7 +78,7 @@ fun ForgotPasswordScreen(
             )
 
             // Email Input
-            CustomTextField(
+            PrimaryTextField(
                 value = email,
                 onValueChange = { email = it },
                 placeholder = "Email",
@@ -87,7 +87,7 @@ fun ForgotPasswordScreen(
                 imeAction = ImeAction.Done
             )
 
-            Spacer(modifier = Modifier.height(32.dp))
+            AppSpacers.Vertical(AppSpacers.Sizes.ExtraLarge)
 
             // Send Reset Link Button
             Button(
@@ -116,7 +116,7 @@ fun ForgotPasswordScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            AppSpacers.Vertical(AppSpacers.Sizes.Large)
 
             // Back to Login
             Row(

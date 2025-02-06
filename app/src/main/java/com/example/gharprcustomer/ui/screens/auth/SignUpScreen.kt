@@ -3,8 +3,6 @@ package com.example.gharprcustomer.ui.screens.auth
 import android.util.Log
 import android.util.Patterns
 import android.widget.Toast
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -14,7 +12,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Login
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Login
@@ -28,7 +25,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -40,11 +36,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.example.gharprcustomer.ui.theme.*
+import com.example.gharprcustomer.ui.components.foundation.AppIcons
+import com.example.gharprcustomer.ui.components.foundation.InlineTextButton
 import com.example.gharprcustomer.viewmodel.AuthState
 import com.example.gharprcustomer.viewmodel.AuthViewModel
-import com.example.gharprcustomer.R
-import com.example.gharprcustomer.ui.components.ContinueWith
+import com.example.gharprcustomer.ui.components.navigation.ContinueWith
+import com.example.gharprcustomer.ui.components.foundation.LoadingButton
+import com.example.gharprcustomer.ui.components.foundation.PrimaryTextField
+import com.example.gharprcustomer.ui.components.layout.AppSpacers
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
@@ -98,6 +97,7 @@ fun SignUpScreen(
             password.length < 8 -> "Password must be at least 8 characters"
             !password.matches(Regex("^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@\$!%*#?&])[A-Za-z\\d@\$!%*#?&]{8,}\$")) ->
                 "Password must contain letters, numbers, and special characters"
+
             else -> null
         }
         return passwordError == null
@@ -116,29 +116,15 @@ fun SignUpScreen(
                 // Ensure dialog is shown
                 delay(100)
 
-                // Show toast with email
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(
-                        context,
-                        "Verification email sent to ${state.customer.email}",
-                        Toast.LENGTH_LONG
-                    ).show()
-                }
             }
+
             is AuthState.VerificationEmailSent -> {
                 // Additional state to handle verification email
                 showVerificationDialog = true
 
                 Log.d("SignUpScreen", "Verification Email Sent")
-
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(
-                        context,
-                        "Verification email sent",
-                        Toast.LENGTH_LONG
-                    ).show()
-                }
             }
+
             is AuthState.Error -> {
                 withContext(Dispatchers.Main) {
                     Toast.makeText(
@@ -148,6 +134,7 @@ fun SignUpScreen(
                     ).show()
                 }
             }
+
             else -> {}
         }
     }
@@ -196,7 +183,7 @@ fun SignUpScreen(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                AppSpacers.Vertical()
 
                 // Input Fields
                 Column(
@@ -204,42 +191,42 @@ fun SignUpScreen(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     // Full Name Input
-                    CustomTextField(
+                    PrimaryTextField(
                         value = fullName,
                         onValueChange = {
                             fullName = it
                             fullNameError = null
                         },
                         placeholder = "Full Name",
-                        leadingIcon = Icons.Default.Person,
+                        leadingIcon = AppIcons.User.Profile.filled,
                         keyboardType = KeyboardType.Text,
                         imeAction = ImeAction.Next,
                         error = fullNameError
                     )
 
                     // Email Input
-                    CustomTextField(
+                    PrimaryTextField(
                         value = email,
                         onValueChange = {
                             email = it
                             emailError = null
                         },
                         placeholder = "Email",
-                        leadingIcon = Icons.Default.Email,
+                        leadingIcon = AppIcons.Communication.Email.filled,
                         keyboardType = KeyboardType.Email,
                         imeAction = ImeAction.Next,
                         error = emailError
                     )
 
                     // Password Input
-                    CustomTextField(
+                    PrimaryTextField(
                         value = password,
                         onValueChange = {
                             password = it
                             passwordError = null
                         },
                         placeholder = "Password",
-                        leadingIcon = Icons.Default.Lock,
+                        leadingIcon = AppIcons.Security.Lock.filled,
                         keyboardType = KeyboardType.Password,
                         visualTransformation = if (passwordVisibility) VisualTransformation.None else PasswordVisualTransformation(),
                         imeAction = ImeAction.Done,
@@ -251,9 +238,9 @@ fun SignUpScreen(
                             ) {
                                 Icon(
                                     imageVector = if (passwordVisibility)
-                                        Icons.Default.VisibilityOff
+                                        AppIcons.Security.VisibilityOff.filled
                                     else
-                                        Icons.Default.Visibility,
+                                        AppIcons.Security.VisibilityOn.filled,
                                     contentDescription = if (passwordVisibility) "Hide password" else "Show password",
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -262,10 +249,12 @@ fun SignUpScreen(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(24.dp))
+                AppSpacers.Vertical(AppSpacers.Sizes.Large)
 
                 // Sign Up Button
-                Button(
+                LoadingButton(
+                    text = "Sign Up",
+                    isLoading = authState == AuthState.Loading,
                     onClick = {
                         val isFullNameValid = validateFullName()
                         val isEmailValid = validateEmail()
@@ -274,19 +263,8 @@ fun SignUpScreen(
                         if (isFullNameValid && isEmailValid && isPasswordValid) {
                             viewModel.signUp(fullName, email, password)
                         }
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(56.dp),
-                    shape = MaterialTheme.shapes.medium
-                ) {
-                    Text(
-                        text = "Sign Up",
-                        style = MaterialTheme.typography.labelLarge.copy(
-                            fontWeight = FontWeight.Bold
-                        )
-                    )
-                }
+                    }
+                )
 
                 ContinueWith(
                     onGoogleClick = onGoogleClick,
@@ -304,18 +282,10 @@ fun SignUpScreen(
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     )
-                    TextButton(
+                    InlineTextButton(
+                        text = "Login",
                         onClick = onLoginClick,
-                        contentPadding = PaddingValues(0.dp)
-                    ) {
-                        Text(
-                            text = "Login",
-                            style = MaterialTheme.typography.bodyLarge.copy(
-                                color = MaterialTheme.colorScheme.primary,
-                                fontWeight = FontWeight.Bold
-                            )
-                        )
-                    }
+                    )
                 }
             }
         }
@@ -383,7 +353,9 @@ fun SignUpScreen(
                             letterSpacing = 0.5.sp
                         )
                     )
-                    Spacer(modifier = Modifier.height(8.dp))
+
+                    AppSpacers.Vertical(AppSpacers.Sizes.Small)
+
                     Text(
                         text = "Check your inbox and click the verification link. This link will expire soon, so verify quickly!",
                         style = MaterialTheme.typography.bodySmall.copy(
@@ -417,7 +389,9 @@ fun SignUpScreen(
                         modifier = Modifier.size(24.dp),
                         tint = MaterialTheme.colorScheme.onPrimary
                     )
-                    Spacer(modifier = Modifier.width(8.dp))
+
+                    AppSpacers.Horizontal(AppSpacers.Sizes.Small)
+
                     Text(
                         "Go to Login",
                         style = MaterialTheme.typography.bodyLarge.copy(
@@ -446,71 +420,3 @@ fun SignUpScreen(
     }
 }
 
-@Composable
-fun CustomTextField(
-    value: String,
-    onValueChange: (String) -> Unit,
-    placeholder: String,
-    leadingIcon: ImageVector,
-    keyboardType: KeyboardType,
-    imeAction: ImeAction = ImeAction.Next,
-    visualTransformation: VisualTransformation = VisualTransformation.None,
-    trailingIcon: @Composable (() -> Unit)? = null,
-    error: String? = null
-) {
-    Column {
-        TextField(
-            value = value,
-            onValueChange = onValueChange,
-            placeholder = {
-                Text(
-                    text = placeholder,
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                )
-            },
-            leadingIcon = {
-                Icon(
-                    imageVector = leadingIcon,
-                    contentDescription = placeholder,
-                    tint = if (error != null)
-                        MaterialTheme.colorScheme.error
-                    else
-                        MaterialTheme.colorScheme.primary
-                )
-            },
-            trailingIcon = trailingIcon,
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(
-                keyboardType = keyboardType,
-                imeAction = imeAction
-            ),
-            visualTransformation = visualTransformation,
-            shape = MaterialTheme.shapes.medium,
-            colors = TextFieldDefaults.colors(
-                focusedContainerColor = MaterialTheme.colorScheme.surface,
-                unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-                disabledContainerColor = MaterialTheme.colorScheme.surface,
-                errorContainerColor = MaterialTheme.colorScheme.surface
-            ),
-            modifier = Modifier
-                .fillMaxWidth()
-                .shadow(
-                    elevation = 2.dp,
-                    shape = MaterialTheme.shapes.medium
-                ),
-            isError = error != null
-        )
-
-        // Error Text
-        if (error != null) {
-            Text(
-                text = error,
-                color = MaterialTheme.colorScheme.error,
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.padding(start = 16.dp, top = 4.dp)
-            )
-        }
-    }
-}
