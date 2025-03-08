@@ -39,7 +39,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.gharprcustomer.navigation.Screen
 import com.example.gharprcustomer.ui.components.navigation.BottomBarWithFab
-import com.example.gharprcustomer.viewmodel.AuthState
+import com.example.gharprcustomer.viewmodel.AuthUiState
 import com.example.gharprcustomer.viewmodel.AuthViewModel
 
 data class SettingsItem(
@@ -53,12 +53,12 @@ data class SettingsItem(
 @Composable
 fun SettingsScreen(navController: NavController, viewModel: AuthViewModel = hiltViewModel()) {
 
-    val authState by viewModel.authState.collectAsStateWithLifecycle()
+    val authUiState by viewModel.authUiState.collectAsStateWithLifecycle()
     var showLogoutDialog by remember { mutableStateOf(false) }
 
-    LaunchedEffect(authState) {
-        when (authState) {
-            is AuthState.LogoutSuccess -> {
+    LaunchedEffect(authUiState) {
+        when (authUiState) {
+            is AuthUiState.LogoutSuccess -> {
                 // Navigate back to authentication option screen
                 navController.navigate(Screen.AuthOption.route) {
                     popUpTo(Screen.Settings.route) { inclusive = true }

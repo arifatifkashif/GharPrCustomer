@@ -1,4 +1,4 @@
-package com.example.gharprcustomer.data.model
+package com.example.gharprcustomer.domain.model
 
 // User Profile Model
 data class UserProfile(

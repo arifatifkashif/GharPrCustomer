@@ -1,4 +1,4 @@
-package com.example.gharprcustomer.data.model
+package com.example.gharprcustomer.domain.model
 
 data class MarketItemModel(
     val marketItemId: Int,

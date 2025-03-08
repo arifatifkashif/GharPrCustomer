@@ -25,8 +25,8 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
-import com.example.gharprcustomer.data.model.OrderMarketModel
-import com.example.gharprcustomer.data.model.OrderStatus
+import com.example.gharprcustomer.domain.model.OrderMarketModel
+import com.example.gharprcustomer.domain.model.OrderStatus
 import com.example.gharprcustomer.navigation.Screen
 import com.example.gharprcustomer.ui.components.navigation.BottomBarWithFab
 import com.example.gharprcustomer.viewmodel.OrdersScreenViewModel

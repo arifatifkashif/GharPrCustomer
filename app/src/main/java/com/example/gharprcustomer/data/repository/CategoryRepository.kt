@@ -1,6 +1,6 @@
 package com.example.gharprcustomer.data.repository
 
-import com.example.gharprcustomer.data.model.CategoryModel
+import com.example.gharprcustomer.domain.model.CategoryModel
 import kotlinx.coroutines.delay
 
 class CategoryRepository {

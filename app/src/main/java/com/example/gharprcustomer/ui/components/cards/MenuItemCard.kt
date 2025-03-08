@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.SubcomposeAsyncImage
 import coil.request.ImageRequest
-import com.example.gharprcustomer.data.model.MenuItemModel
+import com.example.gharprcustomer.domain.model.MenuItemModel
 import com.example.gharprcustomer.ui.theme.Orange
 import com.example.gharprcustomer.ui.theme.White1
 

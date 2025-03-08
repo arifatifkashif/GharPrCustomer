@@ -46,7 +46,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.gharprcustomer.data.model.CartModel
+import com.example.gharprcustomer.domain.model.CartModel
 import com.example.gharprcustomer.ui.theme.LightOrange
 import com.example.gharprcustomer.ui.theme.Orange
 import com.example.gharprcustomer.viewmodel.CartScreenViewModel

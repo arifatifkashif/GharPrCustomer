@@ -1,8 +1,8 @@
 package com.example.gharprcustomer.data.repository
 
-import com.example.gharprcustomer.data.model.OrderItemModel
-import com.example.gharprcustomer.data.model.OrderMarketModel
-import com.example.gharprcustomer.data.model.OrderStatus
+import com.example.gharprcustomer.domain.model.OrderItemModel
+import com.example.gharprcustomer.domain.model.OrderMarketModel
+import com.example.gharprcustomer.domain.model.OrderStatus
 
 class OrdersRepository {
     suspend fun getMarketOrders(): List<OrderMarketModel>{

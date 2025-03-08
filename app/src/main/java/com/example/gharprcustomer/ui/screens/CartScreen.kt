@@ -57,7 +57,7 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.gharprcustomer.R
-import com.example.gharprcustomer.data.model.CartModel
+import com.example.gharprcustomer.domain.model.CartModel
 import com.example.gharprcustomer.ui.theme.Grey
 import com.example.gharprcustomer.ui.theme.Orange
 import com.example.gharprcustomer.ui.theme.White1

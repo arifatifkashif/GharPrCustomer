@@ -1,4 +1,4 @@
-package com.example.gharprcustomer.data.model
+package com.example.gharprcustomer.domain.model
 
 data class CategoryModel(
     val categoryId: Int,           // Unique ID for the category

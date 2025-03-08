@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import com.example.gharprcustomer.data.model.CartModel
+import com.example.gharprcustomer.domain.model.CartModel
 
 @Database(entities = [CartModel::class], version = 1, exportSchema = false)
 abstract class AppDatabase: RoomDatabase() {

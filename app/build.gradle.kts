@@ -11,6 +11,8 @@ plugins {
     id("kotlin-kapt")
     id("com.google.dagger.hilt.android")
     alias(libs.plugins.google.gms.google.services)
+
+    kotlin("plugin.serialization") version "1.9.24"
 }
 
 android {
@@ -29,8 +31,8 @@ android {
 
     val localProperties = Properties()
     val localPropertiesFile = File(rootDir, "secret.properties")
-    if(localPropertiesFile.exists() && localPropertiesFile.isFile){
-        localPropertiesFile.inputStream().use{
+    if (localPropertiesFile.exists() && localPropertiesFile.isFile) {
+        localPropertiesFile.inputStream().use {
             localProperties.load(it)
         }
     }
@@ -124,11 +126,25 @@ dependencies {
     // Material Icons
     implementation(libs.androidx.material.icons.extended)
 
-    // Supabase
-    implementation("io.github.jan-tennert.supabase:gotrue-kt:2.1.0") // Authentication
-    implementation("io.github.jan-tennert.supabase:postgrest-kt:2.1.0") // Database
-    implementation("io.github.jan-tennert.supabase:storage-kt:2.1.0") // File Storage
-    implementation("io.ktor:ktor-client-android:2.3.7") // Ktor HTTP Client for Android
+    // AWS Cognito, DynamoDB
+    implementation(libs.cognitoidentityprovider)
+    implementation(libs.dynamodb)
+
+    // Datastore
+    implementation(libs.androidx.datastore.preferences)
+
+    // KtorClient
+    implementation("io.ktor:ktor-client-core:3.1.0")
+    implementation("io.ktor:ktor-client-cio:3.1.0") // CIO engine (lightweight, good for mobile)
+    implementation("io.ktor:ktor-client-android:3.1.0") // Android-specific engine
+    implementation("io.ktor:ktor-client-content-negotiation:3.1.0")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:3.1.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.0") // Required for Kotlin serialization
+    implementation("io.ktor:ktor-client-logging:3.1.0")
+
+    // Security Crypto for Encrypted Shared Preferences
+    implementation("androidx.security:security-crypto:1.1.0-alpha06")
+
 
 //    implementation(libs.google.accompanist.pager)
 //    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")

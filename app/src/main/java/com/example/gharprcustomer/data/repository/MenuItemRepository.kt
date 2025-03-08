@@ -1,6 +1,6 @@
 package com.example.gharprcustomer.data.repository
 
-import com.example.gharprcustomer.data.model.MenuItemModel
+import com.example.gharprcustomer.domain.model.MenuItemModel
 
 class MenuItemRepository {
     suspend fun getMenuItems(): List<MenuItemModel> {

@@ -2,7 +2,7 @@ package com.example.gharprcustomer.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.gharprcustomer.data.model.CartModel
+import com.example.gharprcustomer.domain.model.CartModel
 import com.example.gharprcustomer.data.repository.CartRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject

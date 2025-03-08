@@ -1,163 +1,105 @@
 package com.example.gharprcustomer.data.repository
 
 import android.util.Log
-import com.example.gharprcustomer.data.model.CustomerModel
-import com.example.gharprcustomer.data.model.RegistrationStage
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
-import jakarta.inject.Inject
-import jakarta.inject.Singleton
-import kotlinx.coroutines.tasks.await
+import com.example.gharprcustomer.data.local.TokenManager
+import com.example.gharprcustomer.data.network.api.AuthApiService
+import com.example.gharprcustomer.domain.model.api.request.auth.*
+import com.example.gharprcustomer.domain.model.api.response.auth.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.withContext
 
-@Singleton
-class AuthRepository @Inject constructor(
-    private val firebaseAuth: FirebaseAuth,
-    private val firestore: FirebaseFirestore
+class AuthRepository(
+    private val authApiService: AuthApiService,
+    private val tokenManager: TokenManager
 ) {
 
-    // Sign Up with Email
-    suspend fun signUpWithEmail(
-        fullName: String,
-        email: String,
-        password: String
-    ): Result<CustomerModel> {
-        return try {
-            // Create Firebase User
-            val authResult = firebaseAuth.createUserWithEmailAndPassword(email, password).await()
-            val firebaseUser = authResult.user
-                ?: throw Exception("User creation failed")
+    suspend fun register(request: RegisterRequest): RegisterResponse {
+        return withContext(Dispatchers.IO) {
+            authApiService.register(request)
+        }
+    }
 
-            // Send Verification Email
-            firebaseUser.sendEmailVerification().await()
+    suspend fun verifyEmail(request: VerifyEmailRequest): VerifyEmailResponse {
+        return withContext(Dispatchers.IO) {
+            authApiService.verifyEmail(request)
+        }
+    }
 
-            // Create Customer Model
-            val customerModel = CustomerModel(
-                firebaseUid = firebaseUser.uid,
-                fullName = fullName,
-                email = email,
-                registrationStage = RegistrationStage.EMAIL_SIGNUP
+    suspend fun login(request: LoginRequest): LoginResponse {
+        return withContext(Dispatchers.IO) {
+            val response = authApiService.login(request)
+            tokenManager.saveTokens(
+                accessToken = response.accessToken,
+                refreshToken = response.refreshToken,
+                idToken = response.idToken,
+                accessTokenExpiration = System.currentTimeMillis() + response.accessTokenExpiresIn,
+                refreshTokenExpiration = System.currentTimeMillis() + response.refreshTokenExpiresIn
             )
-
-            // Save to Firestore
-            firestore.collection("customers")
-                .document(firebaseUser.uid)
-                .set(customerModel)
-                .await()
-
-            Result.success(customerModel)
-        } catch (e: Exception) {
-            Result.failure(e)
+            response
         }
     }
 
-    // Login with Email
-    suspend fun loginWithEmail(
-        email: String,
-        password: String
-    ): Result<CustomerModel> {
+    suspend fun forgotPassword(request: ForgotPasswordRequest): ForgotPasswordResponse {
+        return withContext(Dispatchers.IO) {
+            authApiService.forgotPassword(request)
+        }
+    }
+
+    suspend fun resetForgotPassword(request: ResetForgotPasswordRequest): ResetForgotPasswordResponse {
+        return withContext(Dispatchers.IO) {
+            authApiService.resetForgotPassword(request)
+        }
+    }
+
+    private suspend fun refreshTokens(request: RefreshTokenRequest): RefreshTokenResponse? {
         return try {
-
-            Log.d("AuthRepository", "Login Attempt: $email")
-
-            // Firebase Authentication
-            val authResult = firebaseAuth.signInWithEmailAndPassword(email, password).await()
-            val firebaseUser = authResult.user
-                ?: throw Exception("Login failed")
-
-            Log.d("AuthRepository", "Firebase UID: ${firebaseUser.uid}")
-
-            // Fetch Customer Model from Firestore
-            val customerSnapshot = firestore.collection("customers")
-                .document(firebaseUser.uid)
-                .get()
-                .await()
-
-            Log.d("AuthRepository", "Snapshot Exists: ${customerSnapshot.exists()}")
-            Log.d("AuthRepository", "Snapshot Data: ${customerSnapshot.data}")
-
-            val customerModel = customerSnapshot.toObject(CustomerModel::class.java)
-                ?: throw Exception("Customer profile not found")
-
-            Result.success(customerModel)
+            val response = withContext(Dispatchers.IO) {
+                authApiService.refreshToken(request)
+            }
+            tokenManager.saveTokens(
+                response.accessToken,
+                response.refreshToken,
+                response.idToken,
+                System.currentTimeMillis() + response.accessTokenExpiresIn,
+                System.currentTimeMillis() + response.refreshTokenExpiresIn
+            )
+            response
         } catch (e: Exception) {
-            Log.e("AuthRepository", "Login Error: ${e.message}", e)
-            Result.failure(e)
+            println("Token refresh failed: ${e.message}")
+            tokenManager.clearTokens()
+            null
         }
     }
 
-    // Resend Verification Email
-    suspend fun resendVerificationEmail(): Result<Unit> {
-        return try {
-            firebaseAuth.currentUser?.sendEmailVerification()?.await()
-            Result.success(Unit)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
-    }
-
-    // Reset Password
-    suspend fun resetPassword(email: String): Result<Unit> {
-        return try {
-            firebaseAuth.sendPasswordResetEmail(email).await()
-            Result.success(Unit)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
-    }
-
-    // Get Current User
-    suspend fun getCurrentUser(): Result<CustomerModel> {
-        return try {
-            val firebaseUser = firebaseAuth.currentUser
-                ?: return Result.failure(Exception("No user logged in"))
-
-            // Use await() for coroutine support
-            val snapshot = firestore.collection("customers")
-                .document(firebaseUser.uid)
-                .get()
-                .await()
-
-            val customerModel = snapshot.toObject(CustomerModel::class.java)
-                ?: return Result.failure(Exception("Customer profile not found"))
-
-            Result.success(customerModel)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
-    }
-
-    // Logout
     fun logout() {
-        firebaseAuth.signOut()
+        tokenManager.clearTokens()
     }
 
-    // Update User Profile
-    suspend fun updateProfile(
-        fullName: String,
-        email: String
-    ): Result<CustomerModel> {
-        val currentUser = firebaseAuth.currentUser
-            ?: return Result.failure(Exception("No user logged in"))
-        return try {
-            val customerRef = firestore.collection("customers")
-                .document(currentUser.uid)
-
-            val snapshot = customerRef.get().await()
-            val currentModel = snapshot.toObject(CustomerModel::class.java)
-                ?: throw Exception("Customer not found")
-
-            val updatedModel = currentModel.copy(
-                fullName = fullName,
-                email = email,
-                updatedAt = System.currentTimeMillis()
-            )
-
-            customerRef.set(updatedModel).await()
-
-            Result.success(updatedModel)
-        } catch (e: Exception) {
-            Result.failure(e)
+    suspend fun getAccessToken(): String? {
+        // Check if a valid access token is available
+        val accessToken = tokenManager.getAccessToken()
+        if (accessToken != null) {
+            return accessToken
         }
+
+        // If access token is expired, try refreshing it using the refresh token
+        val refreshToken = tokenManager.getRefreshToken() ?: return null
+        return refreshTokens(RefreshTokenRequest(refreshToken))?.accessToken
     }
 
+    val isLoggedIn: StateFlow<Boolean> = tokenManager.isLoggedIn
+
+
+//    suspend fun submitPhoneNumber(request: PhoneRequest): PhoneResponse {
+//        return withContext(Dispatchers.IO) {
+//            authApiService.registerPhoneNumber(request)
+//        }
+//    }
+//
+//    suspend fun verifyPhoneNumber(request: VerifyPhoneRequest): VerifyPhoneResponse {
+//        return withContext(Dispatchers.IO) {
+//            authApiService.verifyPhoneNumber(request)
+//        }
+//    }
 }

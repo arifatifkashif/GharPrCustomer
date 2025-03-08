@@ -1,4 +1,4 @@
-package com.example.gharprcustomer.data.model
+package com.example.gharprcustomer.domain.model
 
 data class OrderModel(
     val parentOrderId: String,            // Unique ID for the entire customer order across shops

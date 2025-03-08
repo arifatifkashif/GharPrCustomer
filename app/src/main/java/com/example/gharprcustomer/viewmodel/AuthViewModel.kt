@@ -2,8 +2,15 @@ package com.example.gharprcustomer.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.gharprcustomer.data.model.CustomerModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.gharprcustomer.data.local.TokenManager
 import com.example.gharprcustomer.data.repository.AuthRepository
+import com.example.gharprcustomer.domain.model.api.request.auth.ForgotPasswordRequest
+import com.example.gharprcustomer.domain.model.api.request.auth.LoginRequest
+import com.example.gharprcustomer.domain.model.api.request.auth.RefreshTokenRequest
+import com.example.gharprcustomer.domain.model.api.request.auth.RegisterRequest
+import com.example.gharprcustomer.domain.model.api.request.auth.ResetForgotPasswordRequest
+import com.example.gharprcustomer.domain.model.api.request.auth.VerifyEmailRequest
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -11,108 +18,102 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-@HiltViewModel
-class AuthViewModel @Inject constructor(
-    private val authRepository: AuthRepository
-) : ViewModel() {
+// Sealed class for authentication UI states
+sealed class AuthUiState {
+    data object Idle : AuthUiState() // Default state
+    data object Loading : AuthUiState() // Loading state
+    data class Success(val message: String) : AuthUiState() // Success state
+    data class Error(val errorMessage: String) : AuthUiState() // Error state
 
-    // State management for authentication
-    private val _authState = MutableStateFlow<AuthState>(AuthState.Initial)
-    val authState: StateFlow<AuthState> = _authState.asStateFlow()
-
-    // Sign Up Method
-    fun signUp(fullName: String, email: String, password: String) {
-        viewModelScope.launch {
-            _authState.value = AuthState.Loading
-            val result = authRepository.signUpWithEmail(fullName, email, password)
-            _authState.value = when {
-                result.isSuccess -> AuthState.SignUpSuccess(result.getOrNull()!!)
-                else -> AuthState.Error(result.exceptionOrNull()?.message ?: "Sign Up Failed")
-            }
-        }
-    }
-
-    // Login Method
-    fun login(email: String, password: String) {
-        viewModelScope.launch {
-            _authState.value = AuthState.Loading
-            val result = authRepository.loginWithEmail(email, password)
-            _authState.value = when {
-                result.isSuccess -> AuthState.LoginSuccess(result.getOrNull()!!)
-                else -> AuthState.Error(result.exceptionOrNull()?.message ?: "Login Failed")
-            }
-        }
-    }
-
-    // Resend Verification Email
-    fun resendVerificationEmail() {
-        viewModelScope.launch {
-            _authState.value = AuthState.Loading
-            val result = authRepository.resendVerificationEmail()
-            _authState.value = when {
-                result.isSuccess -> AuthState.VerificationEmailSent
-                else -> AuthState.Error(result.exceptionOrNull()?.message ?: "Email Send Failed")
-            }
-        }
-    }
-
-    // Reset Password
-    fun resetPassword(email: String) {
-        viewModelScope.launch {
-            _authState.value = AuthState.Loading
-            val result = authRepository.resetPassword(email)
-            _authState.value = when {
-                result.isSuccess -> AuthState.PasswordResetSent
-                else -> AuthState.Error(result.exceptionOrNull()?.message ?: "Password Reset Failed")
-            }
-        }
-    }
-
-    // Update Profile
-    fun updateProfile(fullName: String, email: String) {
-        viewModelScope.launch {
-            _authState.value = AuthState.Loading
-            val result = authRepository.updateProfile(fullName, email)
-            _authState.value = when {
-                result.isSuccess -> AuthState.ProfileUpdateSuccess(result.getOrNull()!!)
-                else -> AuthState.Error(result.exceptionOrNull()?.message ?: "Profile Update Failed")
-            }
-        }
-    }
-
-    // Logout
-    fun logout() {
-        authRepository.logout()
-        _authState.value = AuthState.LogoutSuccess
-    }
-
-    // Get Current User
-    fun getCurrentUser() {
-        viewModelScope.launch {
-            _authState.value = AuthState.Loading
-            val result = authRepository.getCurrentUser()
-            _authState.value = when {
-                result.isSuccess -> AuthState.UserFetched(result.getOrNull()!!)
-                else -> AuthState.Error(result.exceptionOrNull()?.message ?: "Failed to fetch user")
-            }
-        }
-    }
+    data object LogoutSuccess : AuthUiState()
 }
 
-// Sealed class for Authentication States
-sealed class AuthState {
-    object Initial : AuthState()
-    object Loading : AuthState()
+@HiltViewModel
+class AuthViewModel @Inject constructor(
+    private val authRepository: AuthRepository,
+) : ViewModel() {
 
-    // Success States
-    data class SignUpSuccess(val customer: CustomerModel) : AuthState()
-    data class LoginSuccess(val customer: CustomerModel) : AuthState()
-    object VerificationEmailSent : AuthState()
-    object PasswordResetSent : AuthState()
-    data class ProfileUpdateSuccess(val customer: CustomerModel) : AuthState()
-    data class UserFetched(val customer: CustomerModel) : AuthState()
-    object LogoutSuccess : AuthState()
+    private val _authUiState = MutableStateFlow<AuthUiState>(AuthUiState.Idle)
+    val authUiState: StateFlow<AuthUiState> = _authUiState.asStateFlow()
 
-    // Error State
-    data class Error(val message: String) : AuthState()
+    // Register Function
+    fun register(fullName: String, email: String, password: String) {
+        _authUiState.value = AuthUiState.Loading
+        viewModelScope.launch {
+            try {
+                authRepository.register(RegisterRequest(fullName, email, password))
+                _authUiState.value = AuthUiState.Success("Registration successful")
+            } catch (e: Exception) {
+                _authUiState.value = AuthUiState.Error(e.localizedMessage ?: "Registration failed")
+            }
+        }
+    }
+
+    // Verify Email Function
+    fun verifyEmail(email: String, verificationCode: String) {
+        _authUiState.value = AuthUiState.Loading
+        viewModelScope.launch {
+            try {
+                authRepository.verifyEmail(VerifyEmailRequest(email, verificationCode))
+                _authUiState.value = AuthUiState.Success("Email verification successful")
+            } catch (e: Exception) {
+                _authUiState.value =
+                    AuthUiState.Error(e.localizedMessage ?: "Email verification failed")
+            }
+        }
+    }
+
+    // Login Function
+    fun login(email: String, password: String) {
+        _authUiState.value = AuthUiState.Loading
+        viewModelScope.launch {
+            try {
+                authRepository.login(LoginRequest(email, password))
+                _authUiState.value = AuthUiState.Success("Login successful")
+            } catch (e: Exception) {
+                _authUiState.value = AuthUiState.Error(e.localizedMessage ?: "Login failed")
+            }
+        }
+    }
+
+    fun forgotPassword(email: String) {
+        _authUiState.value = AuthUiState.Loading
+        viewModelScope.launch{
+            try{
+                authRepository.forgotPassword(ForgotPasswordRequest(email))
+                _authUiState.value = AuthUiState.Success("Password reset email sent")
+            } catch (e: Exception){
+                _authUiState.value = AuthUiState.Error(e.localizedMessage ?: "Password reset failed")
+            }
+        }
+    }
+
+    fun resetForgotPassword(email: String, verificationCode: String, newPassword: String) {
+        _authUiState.value = AuthUiState.Loading
+        viewModelScope.launch {
+            try {
+                authRepository.resetForgotPassword(ResetForgotPasswordRequest(email, verificationCode, newPassword))
+                _authUiState.value = AuthUiState.Success("Password reset successfully")
+            } catch (e: Exception) {
+                _authUiState.value = AuthUiState.Error(e.localizedMessage ?: "Password reset failed")
+            }
+        }
+    }
+
+    // Logout function
+    fun logout() {
+        viewModelScope.launch {
+            try {
+                authRepository.logout()
+                _authUiState.value = AuthUiState.LogoutSuccess
+            } catch (e: Exception) {
+                _authUiState.value = AuthUiState.Error("Logout failed: ${e.localizedMessage}")
+            }
+        }
+    }
+
+    // Reset UI state to idle (to avoid showing success/error indefinitely)
+    fun resetState() {
+        _authUiState.value = AuthUiState.Idle
+    }
 }

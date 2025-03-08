@@ -1,6 +1,6 @@
 package com.example.gharprcustomer.data.repository
 
-import com.example.gharprcustomer.data.model.MarketItemModel
+import com.example.gharprcustomer.domain.model.MarketItemModel
 
 class MarketRepository {
     // Function to fetch restaurants

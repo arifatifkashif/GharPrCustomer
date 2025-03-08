@@ -8,39 +8,51 @@ import com.example.gharprcustomer.ui.screens.auth.AuthOptionScreen
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
+import com.example.gharprcustomer.ui.screens.AddressScreen
 import com.example.gharprcustomer.ui.screens.CartScreen
 import com.example.gharprcustomer.ui.screens.DealDetailScreen
+import com.example.gharprcustomer.ui.screens.GetStartedPagerScreen
+import com.example.gharprcustomer.ui.screens.GetStartedScreen
 import com.example.gharprcustomer.ui.screens.HomeScreen
 import com.example.gharprcustomer.ui.screens.MenuItemDetailScreen
 import com.example.gharprcustomer.ui.screens.MarketItemDetailScreen
 import com.example.gharprcustomer.ui.screens.MarketScreen
 import com.example.gharprcustomer.ui.screens.OrdersScreen
+import com.example.gharprcustomer.ui.screens.ProfileScreen
 import com.example.gharprcustomer.ui.screens.SettingsScreen
+import com.example.gharprcustomer.ui.screens.ShareScreen
+import com.example.gharprcustomer.ui.screens.SplashScreen
+import com.example.gharprcustomer.ui.screens.auth.ForgotPasswordScreen
 import com.example.gharprcustomer.ui.screens.auth.LoginScreen
+import com.example.gharprcustomer.ui.screens.auth.ResetForgotPasswordScreen
 import com.example.gharprcustomer.ui.screens.auth.SignUpScreen
+import com.example.gharprcustomer.ui.screens.auth.VerifyEmailScreen
 
 sealed class Screen(val route: String) {
-    object Splash : Screen("splash")
-    object GetStarted : Screen("get_started")
-    object GetStartedPager : Screen("get_started_pager")
-    object AuthOption : Screen("auth_option")
-    object Login : Screen("login")
-    object SignUp : Screen("sign_up")
-    object Home : Screen("home")
-    object Market : Screen("market")
-    object Cart : Screen("cart")
-    object Orders : Screen("orders")
-    object Settings: Screen("settings")
-    object Profile : Screen("profile")
-    object Addresses : Screen("addresses")
-    object HelpSupport : Screen("help_support")
-    object About : Screen("about")
-    object Share : Screen("share")
-    object Notifications : Screen("notifications")
-    object Privacy : Screen("privacy")
-    object MenuItemDetail : Screen("menu_item_detail/{menuItemId}")
-    object MarketItemDetail : Screen("market_item_detail/{marketItemId}")
-    object DealDetail : Screen("deal_detail/{dealId}")
+    data object Splash : Screen("splash")
+    data object GetStarted : Screen("get_started")
+    data object GetStartedPager : Screen("get_started_pager")
+    data object AuthOption : Screen("auth_option")
+    data object SignUp : Screen("sign_up")
+    data object VerifyEmail : Screen("verify_email/{email}")
+    data object Login : Screen("login")
+    data object ForgotPassword : Screen("forgot_password")
+    data object ResetForgotPassword : Screen("reset_forgot_password/{email}")
+    data object Home : Screen("home")
+    data object Market : Screen("market")
+    data object Cart : Screen("cart")
+    data object Orders : Screen("orders")
+    data object Settings : Screen("settings")
+    data object Profile : Screen("profile")
+    data object Addresses : Screen("addresses")
+    data object HelpSupport : Screen("help_support")
+    data object About : Screen("about")
+    data object Share : Screen("share")
+    data object Notifications : Screen("notifications")
+    data object Privacy : Screen("privacy")
+    data object MenuItemDetail : Screen("menu_item_detail/{menuItemId}")
+    data object MarketItemDetail : Screen("market_item_detail/{marketItemId}")
+    data object DealDetail : Screen("deal_detail/{dealId}")
 }
 
 @Composable
@@ -48,30 +60,21 @@ fun AppNavigation(modifier: Modifier, navController: NavHostController) {
 
     NavHost(
         navController = navController,
-        startDestination = Screen.AuthOption.route
+        startDestination = Screen.Splash.route
     ) {
-//        composable(route = Screen.Splash.route) {
-//            SplashScreen(
-//                modifier = modifier,
-//                onSplashComplete = {
-//                    navController.navigate(Screen.GetStarted.route) {
-//                        popUpTo(Screen.Splash.route) { inclusive = true }
-//                    }
-//                }
-//            )
-//        }
-//        composable(route = Screen.GetStarted.route) {
-//            GetStartedScreen(
-//                modifier = modifier,
-//                onGetStartedClick = { navController.navigate(Screen.AuthOption.route) }
-//            )
-//        }
-//        composable(route = Screen.GetStartedPager.route) {
-//            GetStartedScreen(
-//                modifier = modifier,
-//                onGetStartedClick = { navController.navigate(Screen.GetStartedPager.route) }
-//            )
-//        }
+
+        composable(route = Screen.Splash.route) {
+            SplashScreen(navController = navController)
+        }
+
+        composable(route = Screen.GetStarted.route) {
+            GetStartedScreen(onGetStartedClick = { navController.navigate(Screen.GetStartedPager.route) })
+        }
+
+        composable(route = Screen.GetStartedPager.route) {
+            GetStartedPagerScreen(navController = navController)
+        }
+
         composable(route = Screen.AuthOption.route) {
             AuthOptionScreen(
                 modifier = modifier,
@@ -82,15 +85,50 @@ fun AppNavigation(modifier: Modifier, navController: NavHostController) {
         composable(route = Screen.Login.route) {
             LoginScreen(
                 onLoginSuccess = { navController.navigate(Screen.Home.route) },
-                onSignUpClick = { navController.navigate(Screen.SignUp.route) }
+                onSignUpClick = { navController.navigate(Screen.SignUp.route) },
+                onForgotPasswordClick = { navController.navigate(Screen.ForgotPassword.route) }
             )
         }
+
+        composable(route = Screen.ForgotPassword.route) {
+            ForgotPasswordScreen(
+                onBack = { navController.navigate(Screen.Login.route) },
+                navigateToResetForgotPasswordScreen = { email ->
+                    navController.navigate("reset_forgot_password/$email")  // ✅ Correct navigation
+                }
+            )
+        }
+
+        composable(
+            route = "reset_forgot_password/{email}",
+            arguments = listOf(navArgument("email") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val email = backStackEntry.arguments?.getString("email") ?: ""
+            ResetForgotPasswordScreen(
+                email = email,
+                navigateToLoginScreen = { navController.navigate(Screen.Login.route) })
+        }
+
         composable(route = Screen.SignUp.route) {
             SignUpScreen(
-//                onSignUpSuccess = { navController.navigate(Screen.Home.route) },
-                onLoginClick = { navController.navigate(Screen.Login.route) }
+                onLoginClick = { navController.navigate(Screen.Login.route) },
+                navigateToVerifyEmailScreen = { email ->
+                    navController.navigate("${Screen.VerifyEmail.route}/$email")
+                }
             )
         }
+
+        composable(
+            route = "${Screen.VerifyEmail.route}/{email}",
+            arguments = listOf(navArgument("email") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val email = backStackEntry.arguments?.getString("email") ?: ""
+            VerifyEmailScreen(
+                email = email,
+                onVerificationSuccess = { navController.navigate(Screen.Home.route) }
+            )
+        }
+
         composable(route = Screen.Home.route) {
             HomeScreen(navController = navController)
         }
@@ -109,6 +147,18 @@ fun AppNavigation(modifier: Modifier, navController: NavHostController) {
 
         composable(route = Screen.Settings.route) {
             SettingsScreen(navController = navController)
+        }
+
+        composable(route = Screen.Profile.route) {
+            ProfileScreen(navController = navController)
+        }
+
+        composable(route = Screen.Addresses.route) {
+            AddressScreen(navController = navController)
+        }
+
+        composable(route = Screen.Share.route) {
+            ShareScreen()
         }
 
         composable(

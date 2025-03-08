@@ -38,14 +38,13 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.gharprcustomer.ui.components.foundation.AppIcons
 import com.example.gharprcustomer.ui.components.foundation.InlineTextButton
-import com.example.gharprcustomer.viewmodel.AuthState
 import com.example.gharprcustomer.viewmodel.AuthViewModel
 import com.example.gharprcustomer.ui.components.navigation.ContinueWith
 import com.example.gharprcustomer.ui.components.foundation.LoadingButton
 import com.example.gharprcustomer.ui.components.foundation.PrimaryTextField
 import com.example.gharprcustomer.ui.components.layout.AppSpacers
+import com.example.gharprcustomer.viewmodel.AuthUiState
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 
 @Preview
@@ -55,7 +54,8 @@ fun SignUpScreen(
     viewModel: AuthViewModel = hiltViewModel(),
     onLoginClick: () -> Unit = {},
     onGoogleClick: () -> Unit = {},
-    onFacebookClick: () -> Unit = {}
+    onFacebookClick: () -> Unit = {},
+    navigateToVerifyEmailScreen: (String) -> Unit = {}
 ) {
     var fullName by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
@@ -68,7 +68,7 @@ fun SignUpScreen(
     var passwordError by remember { mutableStateOf<String?>(null) }
 
     val context = LocalContext.current
-    val authState by viewModel.authState.collectAsStateWithLifecycle()
+    val authUiState by viewModel.authUiState.collectAsStateWithLifecycle()
     var showVerificationDialog by remember { mutableStateOf(false) }
 
     // Input Validation Functions
@@ -104,32 +104,21 @@ fun SignUpScreen(
     }
 
     // Handle authentication state
-    LaunchedEffect(authState) {
-        when (val state = authState) {
-            is AuthState.SignUpSuccess -> {
-                // Explicitly set dialog to true
-                showVerificationDialog = true
+    LaunchedEffect(authUiState) {
+        Log.d("AuthUiState", "Current state: $authUiState")
+        when (val state = authUiState) {
+            is AuthUiState.Success -> {
+                Log.d("SignUpScreen", "Sign Up Successful, Navigating to Verification Screen")
 
-                // Log the successful sign-up
-                Log.d("SignUpScreen", "Sign Up Successful: ${state.customer.email}")
-
-                // Ensure dialog is shown
-                delay(100)
-
+                // Navigate to email verification screen
+                navigateToVerifyEmailScreen(email)
             }
 
-            is AuthState.VerificationEmailSent -> {
-                // Additional state to handle verification email
-                showVerificationDialog = true
-
-                Log.d("SignUpScreen", "Verification Email Sent")
-            }
-
-            is AuthState.Error -> {
+            is AuthUiState.Error -> {
                 withContext(Dispatchers.Main) {
                     Toast.makeText(
                         context,
-                        "Sign Up Error: ${state.message}",
+                        "Sign Up Error: ${state.errorMessage}",
                         Toast.LENGTH_LONG
                     ).show()
                 }
@@ -254,14 +243,14 @@ fun SignUpScreen(
                 // Sign Up Button
                 LoadingButton(
                     text = "Sign Up",
-                    isLoading = authState == AuthState.Loading,
+                    isLoading = authUiState == AuthUiState.Loading,
                     onClick = {
                         val isFullNameValid = validateFullName()
                         val isEmailValid = validateEmail()
                         val isPasswordValid = validatePassword()
 
                         if (isFullNameValid && isEmailValid && isPasswordValid) {
-                            viewModel.signUp(fullName, email, password)
+                            viewModel.register(fullName, email, password)
                         }
                     }
                 )

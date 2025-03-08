@@ -1,4 +1,4 @@
-package com.example.gharprcustomer.data.model
+package com.example.gharprcustomer.domain.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

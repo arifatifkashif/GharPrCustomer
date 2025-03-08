@@ -1,6 +1,6 @@
 package com.example.gharprcustomer.data.repository
 
-import com.example.gharprcustomer.data.model.DealModel
+import com.example.gharprcustomer.domain.model.DealModel
 
 class DealRepository {
     suspend fun getDeals(): List<DealModel> {

@@ -1,7 +1,7 @@
 package com.example.gharprcustomer.data.repository
 
 import com.example.gharprcustomer.data.local.AppDatabase
-import com.example.gharprcustomer.data.model.CartModel
+import com.example.gharprcustomer.domain.model.CartModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext

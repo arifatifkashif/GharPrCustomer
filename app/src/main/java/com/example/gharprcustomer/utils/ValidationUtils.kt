@@ -12,7 +12,7 @@ object ValidationUtils {
      * @param fullName The full name to validate
      * @return Validation error message or null if valid
      */
-    fun validateFullName(fullName: String): String? {
+    private fun validateFullName(fullName: String): String? {
         return when {
             fullName.isBlank() -> "Full name is required"
             fullName.length < 2 -> "Full name must be at least 2 characters"

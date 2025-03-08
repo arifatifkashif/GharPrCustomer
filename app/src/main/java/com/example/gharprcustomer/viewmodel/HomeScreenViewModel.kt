@@ -2,12 +2,12 @@ package com.example.gharprcustomer.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.gharprcustomer.data.model.BannerModel
-import com.example.gharprcustomer.data.model.CategoryModel
-import com.example.gharprcustomer.data.model.CustomerModel
-import com.example.gharprcustomer.data.model.DealModel
-import com.example.gharprcustomer.data.model.MenuItemModel
-import com.example.gharprcustomer.data.model.MarketItemModel
+import com.example.gharprcustomer.domain.model.BannerModel
+import com.example.gharprcustomer.domain.model.CategoryModel
+import com.example.gharprcustomer.domain.model.CustomerModel
+import com.example.gharprcustomer.domain.model.DealModel
+import com.example.gharprcustomer.domain.model.MenuItemModel
+import com.example.gharprcustomer.domain.model.MarketItemModel
 import com.example.gharprcustomer.data.repository.BannerRepository
 import com.example.gharprcustomer.data.repository.CategoryRepository
 import com.example.gharprcustomer.data.repository.CustomerRepository
@@ -173,5 +173,5 @@ data class HomeScreenState(
 
 
 // ... existing properties
-val location: String? = null  // Add this
+    val location: String? = null  // Add this
 )

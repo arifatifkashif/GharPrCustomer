@@ -2,7 +2,7 @@ package com.example.gharprcustomer.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.gharprcustomer.data.model.MarketItemModel
+import com.example.gharprcustomer.domain.model.MarketItemModel
 import com.example.gharprcustomer.data.repository.MarketRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow

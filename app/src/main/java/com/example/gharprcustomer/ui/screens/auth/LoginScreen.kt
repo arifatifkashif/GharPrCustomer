@@ -1,5 +1,6 @@
 package com.example.gharprcustomer.ui.screens.auth
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring
@@ -10,11 +11,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -26,7 +22,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -39,10 +34,9 @@ import com.example.gharprcustomer.ui.components.foundation.PrimaryTextField
 import com.example.gharprcustomer.ui.components.layout.AppSpacers
 import com.example.gharprcustomer.ui.theme.*
 import com.example.gharprcustomer.utils.ValidationUtils
-import com.example.gharprcustomer.viewmodel.AuthState
+import com.example.gharprcustomer.viewmodel.AuthUiState
 import com.example.gharprcustomer.viewmodel.AuthViewModel
 
-@Preview
 @Composable
 fun LoginScreen(
     modifier: Modifier = Modifier,
@@ -61,22 +55,21 @@ fun LoginScreen(
     var loginAttempted by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
-    val authState by viewModel.authState.collectAsStateWithLifecycle()
+    val authUiState by viewModel.authUiState.collectAsStateWithLifecycle()
 
     // Handle authentication state
-    LaunchedEffect(authState) {
-        when (authState) {
-            is AuthState.LoginSuccess -> {
+    LaunchedEffect(authUiState) {
+        Log.d("AuthUiState", "Current state: $authUiState")
+        when (val state = authUiState) {
+            is AuthUiState.Success -> {
+                viewModel.resetState()
                 onLoginSuccess()
             }
-            is AuthState.Error -> {
-                Toast.makeText(
-                    context,
-                    (authState as AuthState.Error).message,
-                    Toast.LENGTH_SHORT
-                ).show()
+            is AuthUiState.Error -> {
+                Toast.makeText(context, state.errorMessage, Toast.LENGTH_SHORT).show()
+                viewModel.resetState()
             }
-            else -> {}
+            else -> {} // No action for Idle and Loading states
         }
     }
 
@@ -185,19 +178,18 @@ fun LoginScreen(
 
             LoadingButton(
                 text = "Login",
-                isLoading = authState == AuthState.Loading,
+                isLoading = authUiState is AuthUiState.Loading,
                 onClick = {
                     loginAttempted = true
 
-                    // Use validateLogin to check both email and password
+                    // Validate email and password
                     val loginErrors = ValidationUtils.validateLogin(email, password)
-
-                    // Set error messages if validation fails
                     emailError = loginErrors["email"]
                     passwordError = loginErrors["password"]
 
-                    // Only proceed with login if no errors
-                    if (loginErrors.isEmpty()) {
+                    // Check if there are any errors before proceeding
+                    val hasErrors = loginErrors.isNotEmpty()
+                    if (!hasErrors) {
                         viewModel.login(email, password)
                     }
                 }

@@ -1,6 +1,6 @@
 package com.example.gharprcustomer.data.repository
 
-import com.example.gharprcustomer.data.model.BannerModel
+import com.example.gharprcustomer.domain.model.BannerModel
 
 class BannerRepository {
     // Function to fetch banners
